@@ -1,0 +1,43 @@
+import type { BranchItem } from '../types';
+
+export const branchesData: BranchItem[] = [
+  {
+    id: 'triveni-nagar',
+    name: 'Triveni Nagar (Main Campus)',
+    addressLine1: 'Adarsh Puram, Triveni Nagar - III',
+    addressLine2: 'Sitapur Road',
+    city: 'Lucknow',
+    pincode: '226220',
+    landmark: 'Opposite Lodheshwar Lawn',
+    phone: '7617018888, 9129443266',
+    hours: 'Morning & Evening Batches | Office: 8:00 AM – 8:00 PM',
+    isPrimary: true,
+    mapEmbedQuery: 'Adarsh+Puram+Triveni+Nagar+III+Sitapur+Road+Lucknow',
+  },
+  {
+    id: 'faizullaganj',
+    name: 'Faizullaganj Branch',
+    addressLine1: 'Sant Kabir Nagar',
+    addressLine2: 'Opposite Jagmohan Complex Lane, Faizullaganj',
+    city: 'Lucknow',
+    pincode: '226021',
+    landmark: 'Opp. Jagmohan Complex Lane',
+    phone: '7617018888',
+    hours: 'Morning & Evening Batches | Office: 9:00 AM – 7:30 PM',
+    isPrimary: false,
+    mapEmbedQuery: 'Sant+Kabir+Nagar+Faizullaganj+Lucknow',
+  },
+  {
+    id: 'aliganj',
+    name: 'Aliganj Branch',
+    addressLine1: 'Indotech Library Compound',
+    addressLine2: '109 Chandralok Colony, Aliganj',
+    city: 'Lucknow',
+    pincode: '226024',
+    landmark: 'Indotech Library Compound',
+    phone: '7617018888, 8181906139',
+    hours: 'Morning & Evening Batches | Office: 9:00 AM – 7:30 PM',
+    isPrimary: false,
+    mapEmbedQuery: 'Chandralok+Colony+Aliganj+Lucknow',
+  },
+];
