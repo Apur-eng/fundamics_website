@@ -18,26 +18,26 @@ interface FacultyMember {
 const facultyMembers: FacultyMember[] = [
   {
     number: '01',
-    name: 'Manish K. Verma',
-    credentials: 'B.Tech, M.Tech',
-    institution: 'IIT Dhanbad',
-    specialization: 'Physics & Advanced Sciences',
-    experience: '10+ Years Classroom Mentorship',
-    bio: 'Alumnus of Indian Institute of Technology (IIT Dhanbad). Specializes in breaking down complex physical phenomena and mathematical models into crystal-clear intuitive frameworks.',
-    image: '/assets/faculty_mentor.jpg',
-    imageAlt: 'Manish K. Verma, B.Tech, M.Tech IIT Dhanbad, Lead Physics Faculty at Fundemics Tutorials Lucknow',
+    name: 'Mayank Aggarwal',
+    credentials: 'Founder & Director',
+    institution: 'Fundemics Tutorials',
+    specialization: 'Head of Physics & Mathematics',
+    experience: 'Founder & Director',
+    bio: 'Leads the academic direction of Fundemics Tutorials, with responsibility for Physics and Mathematics and the institute’s broader teaching standards.',
+    image: '/assets/mayank_aggarwal.jpeg',
+    imageAlt: 'Mayank Aggarwal, Founder & Director, Head of Physics & Mathematics at Fundemics Tutorials Lucknow',
     isPrimary: true,
   },
   {
     number: '02',
-    name: 'Mayank Agarwal',
-    credentials: 'B.Tech',
-    institution: 'Engineering Graduate',
-    specialization: 'Mathematics & Logical Aptitude',
-    experience: '8+ Years Teaching Experience',
-    bio: 'Engineering graduate dedicated to building computational agility, algebra mastery, and step-by-step problem-solving rigor for school and board examinations.',
-    image: '/assets/teacher_mayank.jpg',
-    imageAlt: 'Mayank Agarwal, B.Tech, Mathematics Faculty at Fundemics Tutorials Lucknow',
+    name: 'Manish K. Verma',
+    credentials: 'Co-Founder · B.Tech, M.Tech',
+    institution: 'IIT Dhanbad',
+    specialization: 'Physics & Advanced Sciences',
+    experience: 'Co-Founder',
+    bio: 'Alumnus of Indian Institute of Technology (IIT Dhanbad). Co-founder and senior mentor specializing in breaking down complex physical phenomena and mathematical models into crystal-clear intuitive frameworks.',
+    image: '/assets/manish_k_verma.jpeg',
+    imageAlt: 'Manish K. Verma, Co-Founder, B.Tech, M.Tech IIT Dhanbad at Fundemics Tutorials Lucknow',
     isPrimary: false,
   },
 ];
@@ -193,7 +193,7 @@ export const TeachersSection: React.FC = () => {
                   }}
                 />
 
-                {/* Corner Alma Mater Tag */}
+                {/* Corner Founder Tag */}
                 <div
                   style={{
                     position: 'absolute',
@@ -222,13 +222,13 @@ export const TeachersSection: React.FC = () => {
                       backgroundColor: '#1B6B44',
                     }}
                   />
-                  <span>IIT Dhanbad Alumnus</span>
+                  <span>Founder &amp; Director</span>
                 </div>
               </div>
 
               {/* Profile Details */}
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {/* 01 / FACULTY Eyebrow */}
+                {/* 01 / LEADERSHIP Eyebrow */}
                 <div
                   style={{
                     display: 'flex',
@@ -247,7 +247,7 @@ export const TeachersSection: React.FC = () => {
                       textTransform: 'uppercase',
                     }}
                   >
-                    01 / FACULTY
+                    01 / LEADERSHIP
                   </span>
                   <span style={{ color: '#D4CEBF' }}>•</span>
                   <span
@@ -258,7 +258,7 @@ export const TeachersSection: React.FC = () => {
                       fontWeight: 600,
                     }}
                   >
-                    {facultyMembers[0].experience}
+                    FOUNDER &amp; DIRECTOR
                   </span>
                 </div>
 
@@ -413,13 +413,13 @@ export const TeachersSection: React.FC = () => {
                       backgroundColor: '#1B6B44',
                     }}
                   />
-                  <span>Engineering Graduate</span>
+                  <span>Co-Founder · IIT Dhanbad Alumnus</span>
                 </div>
               </div>
 
               {/* Profile Details */}
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {/* 02 / FACULTY Eyebrow */}
+                {/* 02 / LEADERSHIP Eyebrow */}
                 <div
                   style={{
                     display: 'flex',
@@ -438,7 +438,7 @@ export const TeachersSection: React.FC = () => {
                       textTransform: 'uppercase',
                     }}
                   >
-                    02 / FACULTY
+                    02 / LEADERSHIP
                   </span>
                   <span style={{ color: '#D4CEBF' }}>•</span>
                   <span
@@ -449,7 +449,7 @@ export const TeachersSection: React.FC = () => {
                       fontWeight: 600,
                     }}
                   >
-                    {facultyMembers[1].experience}
+                    CO-FOUNDER
                   </span>
                 </div>
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import type { RankerRecord } from '../../data/rankersData';
 import { StudentImage } from './StudentImage';
-import { CheckCircle2, ArrowRight, School, MapPin, Award } from 'lucide-react';
+import { CheckCircle2, ArrowRight, School } from 'lucide-react';
 
 interface RankerCardProps {
   ranker: RankerRecord;
@@ -10,7 +10,9 @@ interface RankerCardProps {
 }
 
 export const RankerCard: React.FC<RankerCardProps> = ({ ranker, onViewDetails }) => {
-  const hasOverall = ranker.overallPercentage !== null && ranker.overallPercentage !== undefined;
+  const displayPercentage = ranker.formattedPercentage || `${ranker.percentage}%`;
+  const sessionLabel = ranker.session || ranker.year || '2025–26';
+  const classLabel = ranker.class || ranker.className || 'Class XII';
 
   return (
     <div
@@ -24,7 +26,7 @@ export const RankerCard: React.FC<RankerCardProps> = ({ ranker, onViewDetails })
           onViewDetails?.(ranker);
         }
       }}
-      aria-label={`View result of ${ranker.name}${hasOverall ? `, ${ranker.overallPercentage}%` : ''}`}
+      aria-label={`View result of ${ranker.name}, ${displayPercentage}`}
       style={{
         backgroundColor: '#FFFFFF',
         border: '1px solid #E5DFD4',
@@ -33,18 +35,19 @@ export const RankerCard: React.FC<RankerCardProps> = ({ ranker, onViewDetails })
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        transition: 'transform 350ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1), border-color 300ms ease',
+        transition:
+          'transform 350ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1), border-color 300ms ease',
         cursor: 'pointer',
         boxShadow: '0 4px 18px rgba(16, 23, 43, 0.04)',
         opacity: 1,
       }}
     >
       <div>
-        {/* TOP: Real Student Image Container */}
+        {/* 1. STUDENT PHOTOGRAPH */}
         <div
           style={{
             position: 'relative',
-            height: '250px',
+            height: '260px',
             backgroundColor: '#F5F2EB',
             overflow: 'hidden',
             borderBottom: '1px solid #EFEBE4',
@@ -79,10 +82,10 @@ export const RankerCard: React.FC<RankerCardProps> = ({ ranker, onViewDetails })
               boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
             }}
           >
-            {ranker.board} · {ranker.className || ranker.class}
+            {ranker.board} · {classLabel}
           </div>
 
-          {/* Session / Year Tag */}
+          {/* Session Tag */}
           <div
             style={{
               position: 'absolute',
@@ -99,21 +102,56 @@ export const RankerCard: React.FC<RankerCardProps> = ({ ranker, onViewDetails })
               boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
             }}
           >
-            {ranker.year}
+            {sessionLabel}
           </div>
         </div>
 
-        {/* Card Content Area */}
-        <div style={{ padding: '1.45rem 1.45rem 1rem 1.45rem' }}>
-          {/* Student Name */}
+        {/* Card Content Area with Strict Visual Hierarchy:
+            PERCENTAGE
+            Student Name
+            Class / Board
+            School
+        */}
+        <div style={{ padding: '1.45rem 1.45rem 1.15rem 1.45rem' }}>
+          {/* 1. PERCENTAGE (Dominant Visual Element) */}
+          <div style={{ marginBottom: '0.85rem' }}>
+            <div
+              className="card-percentage"
+              style={{
+                fontFamily: "'Newsreader', Georgia, serif",
+                fontSize: '2.9rem',
+                fontWeight: 700,
+                color: '#10172B',
+                lineHeight: 1,
+                letterSpacing: '-0.025em',
+                display: 'inline-block',
+                position: 'relative',
+              }}
+            >
+              {displayPercentage}
+              <div
+                className="card-accent-line"
+                style={{
+                  height: '3px',
+                  backgroundColor: '#E6AA32',
+                  borderRadius: '2px',
+                  width: '100%',
+                  marginTop: '3px',
+                  transition: 'background-color 300ms ease, width 300ms ease',
+                }}
+              />
+            </div>
+          </div>
+
+          {/* 2. STUDENT NAME */}
           <h4
             className="card-student-name"
             style={{
               fontFamily: "'Newsreader', Georgia, serif",
-              fontSize: '1.4rem',
+              fontSize: '1.45rem',
               fontWeight: 600,
               color: '#10172B',
-              margin: '0 0 0.5rem 0',
+              margin: '0 0 0.35rem 0',
               lineHeight: 1.2,
               letterSpacing: '-0.01em',
               transition: 'color 250ms ease',
@@ -122,172 +160,38 @@ export const RankerCard: React.FC<RankerCardProps> = ({ ranker, onViewDetails })
             {ranker.name}
           </h4>
 
-          {/* UID if available */}
-          {ranker.uid && (
-            <div
-              style={{
-                fontSize: '0.72rem',
-                color: '#8A8274',
-                fontWeight: 600,
-                letterSpacing: '0.04em',
-                marginBottom: '0.6rem',
-              }}
-            >
-              UID: {ranker.uid}
-            </div>
-          )}
-
-          {/* RESULT PRESENTATION: Overall vs Subject Achievements */}
-          {hasOverall ? (
-            /* Documented Overall Percentage */
-            <div style={{ marginBottom: '1.1rem' }}>
-              <div
-                className="card-percentage"
-                style={{
-                  fontFamily: "'Newsreader', Georgia, serif",
-                  fontSize: '2.8rem',
-                  fontWeight: 700,
-                  color: '#10172B',
-                  lineHeight: 1,
-                  letterSpacing: '-0.02em',
-                  display: 'inline-block',
-                  position: 'relative',
-                  transition: 'transform 300ms ease',
-                }}
-              >
-                {ranker.overallPercentage}%
-                <div
-                  className="card-accent-line"
-                  style={{
-                    height: '3px',
-                    backgroundColor: '#E6AA32',
-                    borderRadius: '2px',
-                    width: '100%',
-                    marginTop: '3px',
-                    transition: 'background-color 300ms ease, width 300ms ease',
-                  }}
-                />
-              </div>
-
-              <div
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '0.68rem',
-                  fontWeight: 750,
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  color: '#1B6B44',
-                  marginTop: '0.45rem',
-                }}
-              >
-                {ranker.className || ranker.class} · OVERALL RESULT
-              </div>
-
-              {/* Subject Breakdown if available */}
-              {ranker.subjectResults && ranker.subjectResults.length > 0 && (
-                <div
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '0.35rem',
-                    marginTop: '0.65rem',
-                  }}
-                >
-                  {ranker.subjectResults.map((sub) => (
-                    <span
-                      key={sub.subject}
-                      style={{
-                        fontSize: '0.70rem',
-                        fontWeight: 600,
-                        backgroundColor: '#F5F2EB',
-                        color: '#423D33',
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '4px',
-                        border: '1px solid #EAE3D5',
-                      }}
-                    >
-                      {sub.subject}: {sub.percentage}%
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Historical Subject Achievements (NO fake overall percentage) */
-            <div style={{ marginBottom: '1.1rem' }}>
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '0.68rem',
-                  fontWeight: 800,
-                  letterSpacing: '0.14em',
-                  textTransform: 'uppercase',
-                  color: '#1B6B44',
-                  marginBottom: '0.6rem',
-                }}
-              >
-                <Award size={13} color="#1B6B44" />
-                <span>SUBJECT ACHIEVEMENT</span>
-              </div>
-
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.45rem',
-                }}
-              >
-                {ranker.subjectResults?.map((sub) => (
-                  <div
-                    key={sub.subject}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'baseline',
-                      justifyContent: 'space-between',
-                      borderBottom: '1px dashed #E5DFD4',
-                      paddingBottom: '0.25rem',
-                    }}
-                  >
-                    <span style={{ fontSize: '0.86rem', fontWeight: 600, color: '#423D33' }}>
-                      {sub.subject}
-                    </span>
-                    <span
-                      style={{
-                        fontFamily: "'Newsreader', Georgia, serif",
-                        fontSize: '1.35rem',
-                        fontWeight: 700,
-                        color: '#10172B',
-                        lineHeight: 1,
-                      }}
-                    >
-                      {sub.percentage}%
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Institution & Location Breakdown */}
+          {/* 3. CLASS / BOARD / SESSION */}
           <div
             style={{
-              backgroundColor: '#FAF8F5',
-              borderRadius: '8px',
-              border: '1px solid #EFEAE0',
-              padding: '0.85rem 0.95rem',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.45rem',
+              fontFamily: 'var(--font-display)',
+              fontSize: '0.72rem',
+              fontWeight: 800,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: '#1B6B44',
+              marginBottom: ranker.school ? '0.95rem' : '0.45rem',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <School size={14} color="#1B6B44" style={{ marginTop: '2px', flexShrink: 0 }} />
+            {classLabel} &nbsp;·&nbsp; {ranker.board} &nbsp;·&nbsp; {sessionLabel}
+          </div>
+
+          {/* 4. SCHOOL (Omitted if not specified on poster) */}
+          {ranker.school ? (
+            <div
+              style={{
+                backgroundColor: '#FAF8F5',
+                borderRadius: '8px',
+                border: '1px solid #EFEAE0',
+                padding: '0.75rem 0.9rem',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.5rem',
+              }}
+            >
+              <School size={15} color="#1B6B44" style={{ marginTop: '2px', flexShrink: 0 }} />
               <span
                 style={{
-                  fontSize: '0.80rem',
+                  fontSize: '0.82rem',
                   color: '#423D33',
                   fontWeight: 500,
                   lineHeight: 1.35,
@@ -296,16 +200,9 @@ export const RankerCard: React.FC<RankerCardProps> = ({ ranker, onViewDetails })
                 {ranker.school}
               </span>
             </div>
-
-            {ranker.location && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                <MapPin size={14} color="#E6AA32" style={{ flexShrink: 0 }} />
-                <span style={{ fontSize: '0.78rem', color: '#655F55', fontWeight: 500 }}>
-                  {ranker.location}, Lucknow
-                </span>
-              </div>
-            )}
-          </div>
+          ) : (
+            <div style={{ minHeight: '8px' }} />
+          )}
         </div>
       </div>
 

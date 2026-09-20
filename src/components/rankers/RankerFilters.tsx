@@ -26,6 +26,7 @@ export const RankerFilters: React.FC<RankerFiltersProps> = ({
 }) => {
   return (
     <nav
+      id="rankers-filter-nav"
       aria-label="Filter results by board"
       style={{
         backgroundColor: '#FAF8F5',
@@ -166,15 +167,15 @@ export const RankerFilters: React.FC<RankerFiltersProps> = ({
             </select>
           </div>
 
-          {/* Year Filter */}
+          {/* Session / Year Filter */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <span style={{ fontSize: '0.74rem', color: '#8A8274', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Year:
+              Session:
             </span>
             <select
               value={selectedYear}
               onChange={(e) => onSelectYear(e.target.value)}
-              aria-label="Filter by academic year"
+              aria-label="Filter by academic session"
               style={{
                 backgroundColor: '#FFFFFF',
                 border: '1px solid #DFD9CE',

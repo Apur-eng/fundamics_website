@@ -1,20 +1,44 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { rankersData } from '../../data/rankersData';
+import { rankersData, type RankerRecord } from '../../data/rankersData';
 import { DeckCard } from './DeckCard';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { Link } from '../../context/RouterContext';
 
-export const RankerCarousel: React.FC = () => {
-  // Dynamically filter and sort rankers by overallPercentage descending (only students with official overall percentage)
+export interface RankerCarouselProps {
+  students?: RankerRecord[];
+  onSelectStudent?: (student: RankerRecord) => void;
+  showBottomCta?: boolean;
+}
+
+export const RankerCarousel: React.FC<RankerCarouselProps> = ({
+  students,
+  onSelectStudent,
+  showBottomCta = true,
+}) => {
+  // Dynamically filter and sort rankers
   const sortedRankers = useMemo(() => {
+    if (students && students.length > 0) {
+      return students;
+    }
     return rankersData
       .filter((r) => r.overallPercentage !== null && r.overallPercentage !== undefined)
       .sort((a, b) => (b.overallPercentage ?? 0) - (a.overallPercentage ?? 0));
-  }, []);
+  }, [students]);
 
-  // Center/featured student is dynamically initialized to the highest percentage in the active dataset
+  // Center/featured student index
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const total = sortedRankers.length;
+
+  // Reset current index when students dataset changes
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [students]);
+
+  useEffect(() => {
+    if (currentIndex >= total && total > 0) {
+      setCurrentIndex(0);
+    }
+  }, [total, currentIndex]);
 
   // Viewport dimensions
   const [windowWidth, setWindowWidth] = useState<number>(
@@ -228,9 +252,13 @@ export const RankerCarousel: React.FC = () => {
       // Accidental click following swipe/drag suppressed!
       return;
     }
-    goToIndex(idx);
-    scheduleResumeAutoplay();
-  }, [goToIndex, scheduleResumeAutoplay]);
+    if (idx === currentIndex && onSelectStudent && sortedRankers[idx]) {
+      onSelectStudent(sortedRankers[idx]);
+    } else {
+      goToIndex(idx);
+      scheduleResumeAutoplay();
+    }
+  }, [currentIndex, onSelectStudent, sortedRankers, goToIndex, scheduleResumeAutoplay]);
 
   // ==========================================
   // MOUSE DRAG GESTURE (Desktop)
@@ -663,31 +691,33 @@ export const RankerCarousel: React.FC = () => {
       </div>
 
       {/* Bottom Primary CTA Button */}
-      <div style={{ marginTop: '2rem', textAlign: 'center', zIndex: 10 }}>
-        <Link
-          href="/rankers"
-          className="btn-navy-pill"
-          style={{
-            backgroundColor: '#10172B',
-            color: '#FFFFFF',
-            padding: '0.9rem 2.25rem',
-            borderRadius: '9999px',
-            fontWeight: 600,
-            fontSize: '0.95rem',
-            letterSpacing: '0.02em',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.65rem',
-            textDecoration: 'none',
-            boxShadow: '0 8px 24px rgba(16, 23, 43, 0.2)',
-            transition: 'all 250ms ease',
-            outline: 'none',
-          }}
-        >
-          <span>View All Results</span>
-          <ArrowRight size={17} color="#E6AA32" />
-        </Link>
-      </div>
+      {showBottomCta && (
+        <div style={{ marginTop: '2rem', textAlign: 'center', zIndex: 10 }}>
+          <Link
+            href="/rankers"
+            className="btn-navy-pill"
+            style={{
+              backgroundColor: '#10172B',
+              color: '#FFFFFF',
+              padding: '0.9rem 2.25rem',
+              borderRadius: '9999px',
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              letterSpacing: '0.02em',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.65rem',
+              textDecoration: 'none',
+              boxShadow: '0 8px 24px rgba(16, 23, 43, 0.2)',
+              transition: 'all 250ms ease',
+              outline: 'none',
+            }}
+          >
+            <span>View All Results</span>
+            <ArrowRight size={17} color="#E6AA32" />
+          </Link>
+        </div>
+      )}
 
       {/* Scoped CSS: Accessible focus, hover states, zero blue rectangles */}
       <style>{`

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { RankerRecord } from '../../data/rankersData';
-import { Award, School, MapPin } from 'lucide-react';
+import { Award, School } from 'lucide-react';
 
 interface DeckCardProps {
   student: RankerRecord;
@@ -355,7 +355,7 @@ export const DeckCard: React.FC<DeckCardProps> = ({
                 position: 'relative',
               }}
             >
-              {student.percentage}%
+              {student.formattedPercentage || `${student.percentage}%`}
               {/* Gold brush underline */}
               <svg
                 width="100%"
@@ -407,21 +407,21 @@ export const DeckCard: React.FC<DeckCardProps> = ({
           </div>
 
           {/* Real School & Campus Info (Staggered Reveal Step 4) */}
-          <div
-            className="reveal-institution"
-            style={{
-              backgroundColor: '#FAF8F5',
-              borderRadius: '10px',
-              border: '1px solid #EAE3D5',
-              padding: '0.75rem 0.95rem',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.35rem',
-              textAlign: 'left',
-              marginTop: '0.85rem',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {student.school ? (
+            <div
+              className="reveal-institution"
+              style={{
+                backgroundColor: '#FAF8F5',
+                borderRadius: '10px',
+                border: '1px solid #EAE3D5',
+                padding: '0.75rem 0.95rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                textAlign: 'left',
+                marginTop: '0.85rem',
+              }}
+            >
               <School size={15} color="#1B6B44" style={{ flexShrink: 0 }} />
               <span
                 style={{
@@ -437,14 +437,9 @@ export const DeckCard: React.FC<DeckCardProps> = ({
                 {student.school}
               </span>
             </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <MapPin size={15} color="#E6AA32" style={{ flexShrink: 0 }} />
-              <span style={{ fontSize: '0.80rem', color: '#555149', fontWeight: 500 }}>
-                {student.location}, Lucknow
-              </span>
-            </div>
-          </div>
+          ) : (
+            <div style={{ minHeight: '12px', marginTop: '0.85rem' }} />
+          )}
         </div>
       </div>
 
@@ -569,7 +564,7 @@ export const DeckCard: React.FC<DeckCardProps> = ({
               margin: '0 auto',
             }}
           >
-            {student.percentage}%
+            {student.formattedPercentage || `${student.percentage}%`}
           </div>
 
           {/* Student Name */}

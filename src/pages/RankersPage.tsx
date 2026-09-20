@@ -2,14 +2,13 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { rankersData, type BoardType, type RankerRecord } from '../data/rankersData';
 import { RankerHero } from '../components/rankers/RankerHero';
 import { RankerFilters } from '../components/rankers/RankerFilters';
-import { FeaturedRanker } from '../components/rankers/FeaturedRanker';
-import { SecondaryRanker } from '../components/rankers/SecondaryRanker';
+import { RankerCarousel } from '../components/results/RankerCarousel';
 import { RankerCard } from '../components/rankers/RankerCard';
 import { IscAchievementArchive } from '../components/rankers/IscAchievementArchive';
 import { VerificationNotice } from '../components/rankers/VerificationNotice';
 import { AdmissionsCTA } from '../components/rankers/AdmissionsCTA';
 import { StudentImage } from '../components/rankers/StudentImage';
-import { X, CheckCircle2, Award, BookOpen, RotateCcw, School, MapPin, ShieldCheck, Hash } from 'lucide-react';
+import { X, CheckCircle2, Award, BookOpen, RotateCcw, School, ShieldCheck } from 'lucide-react';
 
 export const RankersPage: React.FC = () => {
   const [selectedBoard, setSelectedBoard] = useState<'ALL' | BoardType>('ALL');
@@ -31,7 +30,6 @@ export const RankersPage: React.FC = () => {
 
   // Clean scroll reveal: sections are immediately visible
   useEffect(() => {
-    // Ensure all sections are revealed immediately
     document.querySelectorAll('.editorial-scroll-reveal').forEach((el) => {
       el.classList.add('is-revealed');
     });
@@ -55,7 +53,7 @@ export const RankersPage: React.FC = () => {
     }
   }, [availableClasses, selectedClass]);
 
-  // Available years for active board selection
+  // Available years/sessions for active board selection
   const availableYears = useMemo(() => {
     const years = new Set<string>();
     const sourceData =
@@ -64,14 +62,18 @@ export const RankersPage: React.FC = () => {
         : rankersData.filter((r) => r.board === selectedBoard);
 
     sourceData.forEach((r) => {
-      years.add(r.year);
-      if (r.batch) {
-        years.add(r.batch.toString());
+      if (r.session) {
+        years.add(r.session);
       }
+      years.add(r.year);
     });
 
     // Custom order: sessions like '2025–26', '2024–25', then numerical reverse years
     return Array.from(years).sort((a, b) => {
+      if (a === '2025–26') return -1;
+      if (b === '2025–26') return 1;
+      if (a === '2024–25') return -1;
+      if (b === '2024–25') return 1;
       const numA = parseInt(a.slice(0, 4), 10);
       const numB = parseInt(b.slice(0, 4), 10);
       if (numA !== numB) return numB - numA;
@@ -86,92 +88,88 @@ export const RankersPage: React.FC = () => {
     }
   }, [availableYears, selectedYear]);
 
-  // Filtered dataset with robust year/session matching
+  // Filtered dataset supporting board, class, and multi-session combinations
   const filteredRankers = useMemo(() => {
     return rankersData.filter((r) => {
       if (selectedBoard !== 'ALL' && r.board !== selectedBoard) return false;
-      if (selectedClass !== 'ALL' && (r.className || r.class) !== selectedClass) return false;
-
+      if (selectedClass !== 'ALL' && (r.class !== selectedClass && r.className !== selectedClass)) {
+        return false;
+      }
       if (selectedYear !== 'ALL') {
+        const studentYear = r.session || r.year;
         const matches =
+          studentYear === selectedYear ||
           r.year === selectedYear ||
           r.batch?.toString() === selectedYear ||
-          (selectedYear === '2025' && (r.batch === 2025 || r.year === '2024–25')) ||
-          (selectedYear === '2024–25' && (r.batch === 2025 || r.year === '2024–25'));
+          (selectedYear === '2025–26' && (r.session === '2025–26' || r.year === '2025–26')) ||
+          (selectedYear === '2024–25' && (r.session === '2024–25' || r.year === '2024–25' || (r.batch === 2025 && r.board === 'ISC')));
         if (!matches) return false;
       }
-
       return true;
     });
   }, [selectedBoard, selectedClass, selectedYear]);
 
-  // Dynamic Featured and Archive Partition Logic
-  // CRITICAL RULE: Only students with overallPercentage !== null participate in overall ranking
-  const { primaryFeatured, secondaryFeatured, archiveList, isTiedSecondary, onlySubjectAchievements } = useMemo(() => {
-    if (filteredRankers.length === 0) {
-      return {
-        primaryFeatured: null,
-        secondaryFeatured: [],
-        archiveList: [],
-        isTiedSecondary: false,
-        onlySubjectAchievements: false,
-      };
+  /**
+   * Featured Achievers Sequence for the Carousel:
+   * - When CBSE: all CBSE candidates in authentic order (all 92%, no artificial ranking).
+   * - When ISC: order by percentage descending (Rudransh 98%, Anamika 97%, Urvi 96.5%, Om 96%, Neharika 95%...).
+   * - When ALL: Highest ISC & overall scorers first, followed by CBSE candidates and remaining records.
+   */
+  const carouselStudents = useMemo(() => {
+    if (filteredRankers.length === 0) return [];
+
+    if (selectedBoard === 'CBSE') {
+      return filteredRankers.filter((r) => r.board === 'CBSE');
     }
 
-    const overallStudents = filteredRankers.filter(
-      (r) => r.overallPercentage !== null && r.overallPercentage !== undefined
+    if (selectedBoard === 'ISC') {
+      return [...filteredRankers].sort((a, b) => {
+        const scoreA = a.overallPercentage ?? a.percentage ?? 0;
+        const scoreB = b.overallPercentage ?? b.percentage ?? 0;
+        return scoreB - scoreA;
+      });
+    }
+
+    // Default sorting for carousel when ALL is selected:
+    const iscToppers = filteredRankers.filter(
+      (r) => r.board === 'ISC' && ((r.overallPercentage ?? 0) >= 90 || r.percentage >= 90)
+    ).sort((a, b) => {
+      const scoreA = a.overallPercentage ?? a.percentage ?? 0;
+      const scoreB = b.overallPercentage ?? b.percentage ?? 0;
+      return scoreB - scoreA;
+    });
+
+    const otherToppers = filteredRankers.filter(
+      (r) => r.board !== 'ISC' && !iscToppers.includes(r)
+    ).sort((a, b) => {
+      const scoreA = a.overallPercentage ?? a.percentage ?? 0;
+      const scoreB = b.overallPercentage ?? b.percentage ?? 0;
+      return scoreB - scoreA;
+    });
+
+    const remainingIsc = filteredRankers.filter(
+      (r) => r.board === 'ISC' && !iscToppers.includes(r)
     );
-    const subjectOnlyStudents = filteredRankers.filter((r) => r.overallPercentage === null);
 
-    // If ALL matching students are historical subject-only candidates (e.g. ISC 2026, 2024, etc.)
-    if (overallStudents.length === 0) {
-      return {
-        primaryFeatured: subjectOnlyStudents[0] || null,
-        secondaryFeatured: subjectOnlyStudents.slice(1, 3),
-        archiveList: subjectOnlyStudents,
-        isTiedSecondary: false,
-        onlySubjectAchievements: true,
-      };
-    }
-
-    // Sort overall students descending by official overallPercentage
-    const sortedOverall = [...overallStudents].sort(
-      (a, b) => (b.overallPercentage ?? 0) - (a.overallPercentage ?? 0)
-    );
-
-    const primary = sortedOverall[0];
-    const remainingOverall = sortedOverall.slice(1);
-
-    let secondary: RankerRecord[] = [];
-    let isTied = false;
-
-    if (selectedBoard === 'ICSE') {
-      // Tied 90% achievers or top next cohort
-      if (remainingOverall.length > 0) {
-        const nextScore = remainingOverall[0].overallPercentage;
-        secondary = remainingOverall.filter((r) => r.overallPercentage === nextScore);
-        isTied = secondary.length > 1;
-        if (!isTied) {
-          secondary = remainingOverall.slice(0, 3);
-        }
-      }
-    } else if (selectedBoard === 'ISC') {
-      secondary = remainingOverall.slice(0, 2);
-    } else {
-      secondary = remainingOverall.slice(0, 3);
-    }
-
-    // Archive list contains all filtered records (overall sorted first, then subject-only)
-    const combinedArchive = [...sortedOverall, ...subjectOnlyStudents];
-
-    return {
-      primaryFeatured: primary,
-      secondaryFeatured: secondary,
-      archiveList: combinedArchive,
-      isTiedSecondary: isTied,
-      onlySubjectAchievements: false,
-    };
+    return [...iscToppers, ...otherToppers, ...remainingIsc];
   }, [filteredRankers, selectedBoard]);
+
+  // Top scorer dynamically chosen from current filtered dataset
+  const topHeroScorer = useMemo(() => {
+    if (filteredRankers.length === 0) return null;
+    if (carouselStudents.length > 0) return carouselStudents[0];
+    return filteredRankers[0];
+  }, [filteredRankers, carouselStudents]);
+
+  // Dynamic 90%+ count from current filtered dataset
+  const ninetyPlusCount = useMemo(() => {
+    return filteredRankers.filter((r) => {
+      const score = r.overallPercentage ?? r.percentage ?? 0;
+      if (score >= 90) return true;
+      if (r.subjectResults && r.subjectResults.some((s) => s.percentage >= 90)) return true;
+      return false;
+    }).length;
+  }, [filteredRankers]);
 
   const handleResetFilters = () => {
     setSelectedBoard('ALL');
@@ -179,23 +177,18 @@ export const RankersPage: React.FC = () => {
     setSelectedYear('ALL');
   };
 
-  const ninetyPlusCount = useMemo(() => {
-    return filteredRankers.filter(
-      (r) => (r.overallPercentage ?? 0) >= 90 || (r.subjectResults?.some((s) => s.percentage >= 90) ?? false)
-    ).length;
-  }, [filteredRankers]);
-
   return (
     <div className="rankers-page-wrapper" style={{ backgroundColor: '#FAF8F5', minHeight: '100vh' }}>
-      {/* 1. EDITORIAL HERO */}
+      {/* 1. EDITORIAL HERO WITH FULLY DYNAMIC FILTERED DATA */}
       <RankerHero
         selectedBoard={selectedBoard}
+        selectedYear={selectedYear}
         totalCount={filteredRankers.length}
-        topScorer={primaryFeatured}
+        topScorer={topHeroScorer}
         ninetyPlusCount={ninetyPlusCount}
       />
 
-      {/* 2. RESULTS FILTER NAVIGATION */}
+      {/* 2. RESULTS FILTER NAVIGATION (Board, Class, Multi-Session) */}
       <RankerFilters
         selectedBoard={selectedBoard}
         onSelectBoard={setSelectedBoard}
@@ -208,7 +201,7 @@ export const RankersPage: React.FC = () => {
       />
 
       <main>
-        {/* Empty state if board has no current results */}
+        {/* Empty state if board/session combination has no current results */}
         {filteredRankers.length === 0 ? (
           <section
             className="empty-results-section editorial-scroll-reveal is-revealed"
@@ -267,7 +260,7 @@ export const RankersPage: React.FC = () => {
                   marginBottom: '1.85rem',
                 }}
               >
-                Results for this board will appear here when published.
+                Results for this board and session will appear here when published.
               </p>
 
               <button
@@ -297,145 +290,95 @@ export const RankersPage: React.FC = () => {
           </section>
         ) : (
           <>
-            {/* 3. FEATURED ACHIEVERS SECTION */}
-            {primaryFeatured && (
-              <section
-                ref={featuredSectionRef}
-                className="featured-achievers-section editorial-scroll-reveal"
-                style={{
-                  paddingTop: 'clamp(3.5rem, 6vw, 5rem)',
-                  paddingBottom: 'clamp(3.5rem, 6vw, 5rem)',
-                  position: 'relative',
-                }}
-                aria-label="Featured Achievers"
-              >
-                <div className="container" style={{ maxWidth: '1240px' }}>
-                  {/* Section Eyebrow & Title */}
-                  <div style={{ marginBottom: '2.5rem' }}>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.6rem',
-                        marginBottom: '0.5rem',
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: '20px',
-                          height: '2px',
-                          backgroundColor: '#1B6B44',
-                          display: 'inline-block',
-                          borderRadius: '1px',
-                        }}
-                      />
-                      <span
-                        style={{
-                          fontFamily: 'var(--font-display)',
-                          fontSize: '0.78rem',
-                          fontWeight: 800,
-                          letterSpacing: '0.18em',
-                          textTransform: 'uppercase',
-                          color: '#1B6B44',
-                        }}
-                      >
-                        {onlySubjectAchievements ? 'HISTORICAL MERIT SHOWCASE' : 'MERIT SHOWCASE'}
-                      </span>
-                    </div>
-
-                    <h2
-                      style={{
-                        fontFamily: "'Newsreader', Georgia, serif",
-                        fontSize: 'clamp(2.1rem, 3.8vw, 3rem)',
-                        fontWeight: 600,
-                        color: '#10172B',
-                        margin: '0 0 0.5rem 0',
-                        letterSpacing: '-0.02em',
-                      }}
-                    >
-                      FEATURED ACHIEVERS
-                    </h2>
-
-                    <p
-                      style={{
-                        fontFamily: 'var(--font-sans)',
-                        fontSize: '1rem',
-                        color: '#655F55',
-                        margin: 0,
-                      }}
-                    >
-                      {onlySubjectAchievements
-                        ? 'Distinguished board scholars with verified subject-specific achievements.'
-                        : selectedBoard === 'ISC'
-                        ? 'Celebrating our highest scoring scholars in Class XII ISC Board examinations.'
-                        : selectedBoard === 'ICSE'
-                        ? 'Celebrating our highest scoring scholars in Class X ICSE Board examinations.'
-                        : 'Real achievements built through disciplined study, personal mentorship, and focused learning.'}
-                    </p>
-                  </div>
-
-                  {/* Primary Featured Student Card */}
+            {/* 3. FEATURED ACHIEVERS SECTION: CAROUSEL AS CENTERPIECE */}
+            <section
+              id="featured-achievers"
+              ref={featuredSectionRef}
+              className="featured-achievers-section editorial-scroll-reveal"
+              style={{
+                paddingTop: 'clamp(3.5rem, 6vw, 5rem)',
+                paddingBottom: 'clamp(3rem, 5vw, 4.5rem)',
+                position: 'relative',
+              }}
+              aria-label="Featured Achievers"
+            >
+              <div className="container" style={{ maxWidth: '1240px' }}>
+                {/* Section Eyebrow & Title */}
+                <div style={{ marginBottom: '2rem' }}>
                   <div
-                    key={`featured-${primaryFeatured.id}`}
-                    style={{ marginBottom: secondaryFeatured.length > 0 ? '2.5rem' : 0 }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.6rem',
+                      marginBottom: '0.5rem',
+                    }}
                   >
-                    <FeaturedRanker
-                      ranker={primaryFeatured}
-                      onViewDetails={setActiveModalRanker}
+                    <span
+                      style={{
+                        width: '20px',
+                        height: '2px',
+                        backgroundColor: '#1B6B44',
+                        display: 'inline-block',
+                        borderRadius: '1px',
+                      }}
                     />
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        fontSize: '0.78rem',
+                        fontWeight: 800,
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        color: '#1B6B44',
+                      }}
+                    >
+                      {selectedYear !== 'ALL'
+                        ? `MERIT SHOWCASE · SESSION ${selectedYear}`
+                        : 'MERIT SHOWCASE · ALL SESSIONS'}
+                    </span>
                   </div>
 
-                  {/* Secondary Featured Students */}
-                  {secondaryFeatured.length > 0 && (
-                    <div style={{ marginTop: '2.75rem' }}>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.6rem',
-                          marginBottom: '1.25rem',
-                        }}
-                      >
-                        <span
-                          style={{
-                            fontFamily: 'var(--font-display)',
-                            fontSize: '0.74rem',
-                            fontWeight: 800,
-                            letterSpacing: '0.14em',
-                            textTransform: 'uppercase',
-                            color: '#8A8274',
-                          }}
-                        >
-                          {isTiedSecondary
-                            ? `TIED HIGH MERIT ACHIEVERS · ${secondaryFeatured[0].overallPercentage}%`
-                            : onlySubjectAchievements
-                            ? 'ADDITIONAL NOTABLE SCHOLARS'
-                            : 'DISTINGUISHED MERIT ACHIEVERS'}
-                        </span>
-                        <div style={{ height: '1px', flex: 1, backgroundColor: '#E5DFD4' }} />
-                      </div>
+                  <h2
+                    style={{
+                      fontFamily: "'Newsreader', Georgia, serif",
+                      fontSize: 'clamp(2.1rem, 3.8vw, 3rem)',
+                      fontWeight: 600,
+                      color: '#10172B',
+                      margin: '0 0 0.5rem 0',
+                      letterSpacing: '-0.02em',
+                    }}
+                  >
+                    FEATURED ACHIEVERS
+                  </h2>
 
-                      <div
-                        key={`sec-grid-${selectedBoard}-${selectedYear}`}
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                          gap: '2rem',
-                        }}
-                      >
-                        {secondaryFeatured.map((secRanker) => (
-                          <SecondaryRanker
-                            key={secRanker.id}
-                            ranker={secRanker}
-                            onViewDetails={setActiveModalRanker}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  <p
+                    style={{
+                      fontFamily: 'var(--font-sans)',
+                      fontSize: '1rem',
+                      color: '#655F55',
+                      margin: 0,
+                    }}
+                  >
+                    {selectedBoard === 'ISC'
+                      ? 'Celebrating our highest scoring scholars in Class XII ISC Board examinations.'
+                      : selectedBoard === 'CBSE'
+                      ? 'Celebrating our distinguished scholars scoring 92% in Class XII CBSE examinations.'
+                      : selectedBoard === 'ICSE'
+                      ? 'Celebrating our highest scoring scholars in Class X ICSE Board examinations.'
+                      : 'Real achievements built through disciplined study, personal mentorship, and focused learning.'}
+                  </p>
                 </div>
-              </section>
-            )}
+
+                {/* FEATURED ACHIEVER CAROUSEL CENTERPIECE */}
+                <div style={{ width: '100%', margin: '0 auto' }}>
+                  <RankerCarousel
+                    students={carouselStudents}
+                    onSelectStudent={setActiveModalRanker}
+                    showBottomCta={false}
+                  />
+                </div>
+              </div>
+            </section>
 
             {/* 4. RESULTS ARCHIVE GRID */}
             <section
@@ -474,7 +417,9 @@ export const RankersPage: React.FC = () => {
                         marginBottom: '0.35rem',
                       }}
                     >
-                      ACADEMIC ARCHIVE
+                      {selectedYear !== 'ALL'
+                        ? `ACADEMIC ARCHIVE · SESSION ${selectedYear}`
+                        : 'ACADEMIC ARCHIVE · ALL SESSIONS'}
                     </div>
                     <h3
                       style={{
@@ -486,7 +431,9 @@ export const RankersPage: React.FC = () => {
                         letterSpacing: '-0.015em',
                       }}
                     >
-                      {selectedBoard === 'ALL' ? 'ALL RESULTS & ACHIEVEMENTS' : `${selectedBoard} RESULTS`}
+                      {selectedBoard === 'ALL'
+                        ? 'ALL RESULTS & ACHIEVEMENTS'
+                        : `${selectedBoard} RESULTS`}
                     </h3>
                   </div>
 
@@ -498,8 +445,9 @@ export const RankersPage: React.FC = () => {
                       color: '#655F55',
                     }}
                   >
-                    Showing {archiveList.length} Verified {archiveList.length === 1 ? 'Record' : 'Records'}
+                    Showing {filteredRankers.length} Verified {filteredRankers.length === 1 ? 'Record' : 'Records'}
                     {selectedBoard !== 'ALL' ? ` in ${selectedBoard}` : ''}
+                    {selectedYear !== 'ALL' ? ` (${selectedYear})` : ''}
                   </div>
                 </div>
 
@@ -512,7 +460,7 @@ export const RankersPage: React.FC = () => {
                     gap: '2rem',
                   }}
                 >
-                  {archiveList.map((ranker, index) => (
+                  {filteredRankers.map((ranker, index) => (
                     <RankerCard
                       key={ranker.id}
                       ranker={ranker}
@@ -526,7 +474,7 @@ export const RankersPage: React.FC = () => {
           </>
         )}
 
-        {/* 5. DEDICATED HISTORICAL ISC ACHIEVEMENT ARCHIVE SECTION */}
+        {/* 5. HISTORICAL ISC ACHIEVEMENT ARCHIVE (Preserved) */}
         <IscAchievementArchive
           rankers={rankersData}
           onSelectRanker={setActiveModalRanker}
@@ -564,7 +512,7 @@ export const RankersPage: React.FC = () => {
             style={{
               backgroundColor: '#FFFFFF',
               borderRadius: '16px',
-              maxWidth: '580px',
+              maxWidth: '560px',
               width: '100%',
               border: '1px solid #E5DFD4',
               boxShadow: '0 25px 60px rgba(16, 23, 43, 0.28)',
@@ -675,67 +623,51 @@ export const RankersPage: React.FC = () => {
                     {activeModalRanker.name}
                   </h3>
 
-                  {/* If Overall Percentage exists */}
-                  {activeModalRanker.overallPercentage !== null ? (
-                    <div>
-                      <div style={{ display: 'inline-block', position: 'relative' }}>
-                        <div
-                          style={{
-                            fontFamily: "'Newsreader', Georgia, serif",
-                            fontSize: '3.2rem',
-                            fontWeight: 700,
-                            color: '#10172B',
-                            lineHeight: 1,
-                          }}
-                        >
-                          {activeModalRanker.overallPercentage}%
-                        </div>
-                        <div
-                          style={{
-                            height: '3.5px',
-                            backgroundColor: '#E6AA32',
-                            borderRadius: '2px',
-                            width: '100%',
-                            marginTop: '2px',
-                          }}
-                        />
+                  <div>
+                    <div style={{ display: 'inline-block', position: 'relative' }}>
+                      <div
+                        style={{
+                          fontFamily: "'Newsreader', Georgia, serif",
+                          fontSize: '3.2rem',
+                          fontWeight: 700,
+                          color: '#10172B',
+                          lineHeight: 1,
+                        }}
+                      >
+                        {activeModalRanker.formattedPercentage ||
+                          (activeModalRanker.overallPercentage !== null && activeModalRanker.overallPercentage !== undefined
+                            ? `${activeModalRanker.overallPercentage}%`
+                            : `${activeModalRanker.percentage}%`)}
                       </div>
                       <div
                         style={{
-                          fontSize: '0.72rem',
-                          fontWeight: 750,
-                          letterSpacing: '0.08em',
-                          textTransform: 'uppercase',
-                          color: '#1B6B44',
-                          marginTop: '0.4rem',
+                          height: '3.5px',
+                          backgroundColor: '#E6AA32',
+                          borderRadius: '2px',
+                          width: '100%',
+                          marginTop: '2px',
                         }}
-                      >
-                        Certified Overall Result
-                      </div>
+                      />
                     </div>
-                  ) : (
-                    <div>
-                      <span
-                        style={{
-                          display: 'inline-block',
-                          backgroundColor: '#EBF4ED',
-                          color: '#1B6B44',
-                          padding: '0.35rem 0.75rem',
-                          borderRadius: '6px',
-                          fontSize: '0.76rem',
-                          fontWeight: 800,
-                          letterSpacing: '0.1em',
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        Documented Subject Achievements
-                      </span>
+                    <div
+                      style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 750,
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                        color: '#1B6B44',
+                        marginTop: '0.4rem',
+                      }}
+                    >
+                      {activeModalRanker.overallPercentage !== null
+                        ? `Certified Result · Session ${activeModalRanker.session || activeModalRanker.year}`
+                        : `Documented Subject Achievement · Session ${activeModalRanker.session || activeModalRanker.year}`}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
 
-              {/* Subject Results Breakdown */}
+              {/* Subject Results Breakdown if present */}
               {activeModalRanker.subjectResults && activeModalRanker.subjectResults.length > 0 && (
                 <div
                   style={{
@@ -760,7 +692,7 @@ export const RankersPage: React.FC = () => {
                     }}
                   >
                     <Award size={13} color="#1B6B44" />
-                    <span>Subject-Wise Score Breakdown</span>
+                    <span>Documented Subject Scores</span>
                   </div>
 
                   <div
@@ -803,7 +735,7 @@ export const RankersPage: React.FC = () => {
                 </div>
               )}
 
-              {/* Verified Institutional Details */}
+              {/* Verified School Information */}
               <div
                 style={{
                   backgroundColor: '#FAF8F5',
@@ -816,36 +748,9 @@ export const RankersPage: React.FC = () => {
                   gap: '0.85rem',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem' }}>
-                  <School size={17} color="#1B6B44" style={{ marginTop: '2px', flexShrink: 0 }} />
-                  <div>
-                    <div
-                      style={{
-                        fontSize: '0.70rem',
-                        color: '#8A8274',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.08em',
-                      }}
-                    >
-                      School & Board
-                    </div>
-                    <div
-                      style={{
-                        fontSize: '0.95rem',
-                        color: '#10172B',
-                        fontWeight: 600,
-                        marginTop: '2px',
-                      }}
-                    >
-                      {activeModalRanker.school}
-                    </div>
-                  </div>
-                </div>
-
-                {activeModalRanker.uid && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                    <Hash size={17} color="#1B6B44" style={{ flexShrink: 0 }} />
+                {activeModalRanker.school ? (
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem' }}>
+                    <School size={17} color="#1B6B44" style={{ marginTop: '2px', flexShrink: 0 }} />
                     <div>
                       <div
                         style={{
@@ -856,49 +761,24 @@ export const RankersPage: React.FC = () => {
                           letterSpacing: '0.08em',
                         }}
                       >
-                        Board Candidate UID
+                        School / Institution
                       </div>
                       <div
                         style={{
-                          fontSize: '0.92rem',
+                          fontSize: '0.95rem',
                           color: '#10172B',
                           fontWeight: 600,
                           marginTop: '2px',
-                          fontFamily: 'monospace',
                         }}
                       >
-                        {activeModalRanker.uid}
+                        {activeModalRanker.school}
+                        {activeModalRanker.location ? `, ${activeModalRanker.location}` : ''}
                       </div>
                     </div>
                   </div>
-                )}
-
-                {activeModalRanker.location && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                    <MapPin size={17} color="#E6AA32" style={{ flexShrink: 0 }} />
-                    <div>
-                      <div
-                        style={{
-                          fontSize: '0.70rem',
-                          color: '#8A8274',
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.08em',
-                        }}
-                      >
-                        Campus Location
-                      </div>
-                      <div
-                        style={{
-                          fontSize: '0.92rem',
-                          color: '#423D33',
-                          fontWeight: 500,
-                          marginTop: '2px',
-                        }}
-                      >
-                        {activeModalRanker.location}, Lucknow
-                      </div>
-                    </div>
+                ) : (
+                  <div style={{ fontSize: '0.82rem', color: '#655F55', fontStyle: 'italic' }}>
+                    School not specified on official document
                   </div>
                 )}
 
@@ -924,7 +804,7 @@ export const RankersPage: React.FC = () => {
                         marginTop: '2px',
                       }}
                     >
-                      Certified Official Record · Session {activeModalRanker.year}
+                      Certified Official Record · {activeModalRanker.className || activeModalRanker.class} · Session {activeModalRanker.session || activeModalRanker.year}
                     </div>
                   </div>
                 </div>

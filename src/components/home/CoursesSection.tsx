@@ -87,7 +87,7 @@ export const CoursesSection: React.FC = () => {
         overflow: 'hidden',
         borderBottom: '1px solid var(--surface-blue-border)',
       }}
-      aria-label="Learning for Every Stage — Choose Your Board"
+      aria-label="Choose Your Path — Academic Boards"
     >
       <div className="container" style={{ position: 'relative', zIndex: 2 }}>
         {/* ==================================================================== */}
@@ -142,7 +142,7 @@ export const CoursesSection: React.FC = () => {
               margin: '0 0 1rem 0',
             }}
           >
-            Learning for Every Stage
+            Choose Your Path
           </h2>
 
           {/* Supporting Copy */}
