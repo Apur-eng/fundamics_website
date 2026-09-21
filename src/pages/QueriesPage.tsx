@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SeoHead } from '../components/common/SeoHead';
 import { siteConfig } from '../data/siteConfig';
 import { branchesData } from '../data/branches';
 import { Phone, Mail, MapPin, Send, CheckCircle, AlertCircle, HelpCircle } from 'lucide-react';
@@ -21,23 +22,40 @@ export const QueriesPage: React.FC = () => {
 
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (!formData.name.trim()) {
+    const trimmedName = formData.name.trim();
+    if (!trimmedName) {
       errs.name = 'Please enter student or parent name.';
+    } else if (trimmedName.length < 2 || trimmedName.length > 80) {
+      errs.name = 'Name must be between 2 and 80 characters.';
     }
+
+    const cleanPhone = formData.phone.replace(/[^0-9]/g, '');
     if (!formData.phone.trim()) {
-      errs.phone = 'Please enter a valid contact phone number.';
-    } else if (!/^\d{10}$/.test(formData.phone.replace(/[^0-9]/g, ''))) {
+      errs.phone = 'Please enter a contact mobile number.';
+    } else if (cleanPhone.length !== 10) {
       errs.phone = 'Please enter a valid 10-digit mobile number.';
     }
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errs.email = 'Please enter a valid email address.';
+
+    if (formData.email.trim()) {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(formData.email.trim())) {
+        errs.email = 'Please enter a valid email address.';
+      }
     }
+
     if (!formData.branch) {
-      errs.branch = 'Please select a branch.';
+      errs.branch = 'Please select your preferred branch.';
+    } else if (!['Triveni Nagar', 'Faizullaganj', 'Aliganj'].includes(formData.branch)) {
+      errs.branch = 'Please select a valid branch option.';
     }
-    if (!formData.query.trim()) {
+
+    const trimmedQuery = formData.query.trim();
+    if (!trimmedQuery) {
       errs.query = 'Please let us know your question or requirements.';
+    } else if (trimmedQuery.length < 5 || trimmedQuery.length > 1000) {
+      errs.query = 'Message must be between 5 and 1000 characters.';
     }
+
     return errs;
   };
 
@@ -70,6 +88,21 @@ export const QueriesPage: React.FC = () => {
 
   return (
     <div className="queries-page animate-fade-in">
+      <SeoHead
+        title="Contact & Admissions Enquiry | Fundemics Tutorials Lucknow"
+        description="Connect with Fundemics Tutorials Lucknow for admissions counseling, batch timings, transport facilities, and fee queries across our Triveni Nagar, Faizullaganj, and Aliganj branches."
+        canonicalPath="/queries"
+        breadcrumbs={[
+          { name: 'Home', path: '/' },
+          { name: 'Queries', path: '/queries' },
+        ]}
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'ContactPage',
+          name: 'Fundemics Tutorials Admissions & Queries Desk',
+          url: 'https://fundemicstutorials.in/queries',
+        }}
+      />
       {/* Editorial Header */}
       <section
         style={{

@@ -8,6 +8,7 @@ import { IscAchievementArchive } from '../components/rankers/IscAchievementArchi
 import { VerificationNotice } from '../components/rankers/VerificationNotice';
 import { AdmissionsCTA } from '../components/rankers/AdmissionsCTA';
 import { StudentImage } from '../components/rankers/StudentImage';
+import { SeoHead } from '../components/common/SeoHead';
 import { X, CheckCircle2, Award, BookOpen, RotateCcw, School, ShieldCheck } from 'lucide-react';
 
 export const RankersPage: React.FC = () => {
@@ -179,6 +180,15 @@ export const RankersPage: React.FC = () => {
 
   return (
     <div className="rankers-page-wrapper" style={{ backgroundColor: '#FAF8F5', minHeight: '100vh' }}>
+      <SeoHead
+        title="Our Rankers & Board Results | Fundemics Tutorials Lucknow"
+        description="Verified student achievements, board toppers, and high scorers across ICSE, ISC, and CBSE examinations at Fundemics Tutorials Lucknow. Real results backed by disciplined mentorship."
+        canonicalPath="/rankers"
+        breadcrumbs={[
+          { name: 'Home', path: '/' },
+          { name: 'Our Rankers', path: '/rankers' },
+        ]}
+      />
       {/* 1. EDITORIAL HERO WITH FULLY DYNAMIC FILTERED DATA */}
       <RankerHero
         selectedBoard={selectedBoard}

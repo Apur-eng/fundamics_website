@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { RouterProvider, useRouter } from './context/RouterContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
@@ -11,26 +11,7 @@ import { QueriesPage } from './pages/QueriesPage';
 const PageContent: React.FC = () => {
   const { currentPath } = useRouter();
 
-  // Dynamic SEO Page Title & Meta based on current route
-  useEffect(() => {
-    switch (currentPath) {
-      case '/rankers':
-        document.title = 'Our Rankers | Fundemics Tutorials Lucknow';
-        break;
-      case '/vision':
-        document.title = 'Our Vision & Philosophy | Fundemics Tutorials';
-        break;
-      case '/teachers':
-        document.title = 'Meet the Teachers | Fundemics Tutorials Lucknow';
-        break;
-      case '/queries':
-        document.title = 'Contact & Admissions Enquiry | Fundemics Tutorials';
-        break;
-      default:
-        document.title = 'Fundemics Tutorials | Quality Education in Lucknow | Classes I–XII';
-        break;
-    }
-  }, [currentPath]);
+  // Page titles and meta tags are managed dynamically by <SeoHead /> in each page component
 
   // Route selector
   const renderCurrentPage = () => {

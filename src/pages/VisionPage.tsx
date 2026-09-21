@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { SeoHead } from '../components/common/SeoHead';
 import { Link } from '../context/RouterContext';
 import {
   ArrowRight,
@@ -19,6 +20,15 @@ export const VisionPage: React.FC = () => {
 
   return (
     <div className="vision-page animate-fade-in" style={{ width: '100%', overflowX: 'clip' }}>
+      <SeoHead
+        title="Our Vision & Philosophy | Fundemics Tutorials Lucknow"
+        description="Discover the core educational philosophy of Fundemics Tutorials: conceptual depth, personalized attention, student-centric mentorship, and disciplined board examination preparation in Lucknow."
+        canonicalPath="/vision"
+        breadcrumbs={[
+          { name: 'Home', path: '/' },
+          { name: 'Our Vision', path: '/vision' },
+        ]}
+      />
       {/* ==================================================================== */}
       {/* 1. HERO SECTION — Refined Cinematic Hero with Visible Classroom Photo */}
       {/* ==================================================================== */}

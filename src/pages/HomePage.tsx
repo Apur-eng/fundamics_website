@@ -1,4 +1,5 @@
 import React from 'react';
+import { SeoHead } from '../components/common/SeoHead';
 import { HeroSlideshow } from '../components/home/HeroSlideshow';
 import { FeaturedTopperCarousel } from '../components/home/FeaturedTopperCarousel';
 import { CoursesSection } from '../components/home/CoursesSection';
@@ -14,6 +15,30 @@ import { FinalContactCTA } from '../components/home/FinalContactCTA';
 export const HomePage: React.FC = () => {
   return (
     <div className="home-page animate-fade-in" style={{ width: '100%', overflowX: 'clip' }}>
+      <SeoHead
+        title="Fundemics Tutorials | Premier Coaching in Lucknow | ICSE, ISC, CBSE & State Board"
+        description="Fundemics Tutorials LLP provides high-impact academic coaching for Classes I–XII across ICSE, ISC, CBSE, and State Board in Lucknow. Experienced mentors, morning batches, and verified rankers."
+        canonicalPath="/"
+        structuredData={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'Fundemics Tutorials',
+            url: 'https://fundemicstutorials.in/',
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Course',
+            name: 'Secondary & Senior Secondary Board Coaching (ICSE, ISC, CBSE, State Board)',
+            description: 'Comprehensive board exam preparation for Classes I to XII with focus on Science, Mathematics, and conceptual mastery in Lucknow.',
+            provider: {
+              '@type': 'EducationalOrganization',
+              name: 'Fundemics Tutorials LLP',
+              url: 'https://fundemicstutorials.in/',
+            },
+          },
+        ]}
+      />
       {/* 1. HERO */}
       <HeroSlideshow />
 

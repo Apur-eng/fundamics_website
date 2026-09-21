@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SeoHead } from '../components/common/SeoHead';
 import { Link } from '../context/RouterContext';
 import { ArrowRight, ShieldCheck, Users } from 'lucide-react';
 import { teachersData, FACULTY_CATEGORIES } from '../data/teachers';
@@ -23,6 +24,15 @@ export const TeachersPage: React.FC = () => {
 
   return (
     <div className="faculty-page animate-fade-in" style={{ width: '100%', overflowX: 'clip' }}>
+      <SeoHead
+        title="Meet Our Faculty & Mentors | Fundemics Tutorials Lucknow"
+        description="Learn about our experienced faculty and subject mentors across Mathematics, Physics, Chemistry, Biology, and Computer Science at Fundemics Tutorials Lucknow."
+        canonicalPath="/teachers"
+        breadcrumbs={[
+          { name: 'Home', path: '/' },
+          { name: 'Faculty', path: '/teachers' },
+        ]}
+      />
       {/* ==================================================================== */}
       {/* 1. HERO SECTION — Institutional Identity                             */}
       {/* ==================================================================== */}
