@@ -31,8 +31,8 @@ const BOARDS: BoardData[] = [
       { title: 'SECONDARY', classes: 'Classes IX–X' },
       { title: 'SENIOR SECONDARY', classes: 'Classes XI–XII' },
     ],
-    image: '/assets/hero_classroom.jpg',
-    imageAlt: 'Engaged ICSE and ISC students in an authentic Lucknow classroom discussion at Fundemics Tutorials',
+    image: '/assets/cisce_logo.jpeg',
+    imageAlt: 'Council for the Indian School Certificate Examinations (CISCE) official curriculum at Fundemics Tutorials',
     ctaText: 'Explore ICSE',
     route: '/courses/icse',
   },
@@ -47,8 +47,8 @@ const BOARDS: BoardData[] = [
       { title: 'SECONDARY', classes: 'Classes IX–X' },
       { title: 'SENIOR SECONDARY', classes: 'Classes XI–XII' },
     ],
-    image: '/assets/mentorship.jpg',
-    imageAlt: 'CBSE students working through conceptual derivations with faculty mentors at Fundemics Tutorials',
+    image: '/assets/cbse_logo.jpeg',
+    imageAlt: 'Central Board of Secondary Education (CBSE) curriculum at Fundemics Tutorials',
     ctaText: 'Explore CBSE',
     route: '/courses/cbse',
   },
@@ -63,8 +63,8 @@ const BOARDS: BoardData[] = [
       { title: 'SECONDARY', classes: 'Classes IX–X' },
       { title: 'SENIOR SECONDARY', classes: 'Classes XI–XII' },
     ],
-    image: '/assets/faculty_mentor.jpg',
-    imageAlt: 'State Board students in an intensive problem-solving session with senior faculty at Fundemics Tutorials',
+    image: '/assets/up_logo.webp',
+    imageAlt: 'Uttar Pradesh State Board (UPMSP) curriculum at Fundemics Tutorials',
     ctaText: 'Explore State Board',
     route: '/courses/up-board',
   },
@@ -266,11 +266,15 @@ export const CoursesSection: React.FC = () => {
               style={{
                 position: 'relative',
                 width: '100%',
-                borderRadius: '14px',
+                borderRadius: '16px',
                 overflow: 'hidden',
-                backgroundColor: '#10172B',
-                boxShadow: '0 12px 36px rgba(16, 23, 43, 0.08), 0 2px 6px rgba(16, 23, 43, 0.04)',
-                border: '1px solid #E5DFD4',
+                backgroundColor: '#FFFFFF',
+                boxShadow: '0 12px 36px rgba(16, 23, 43, 0.07), 0 2px 8px rgba(16, 23, 43, 0.04)',
+                border: '1px solid #DCE4EC',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '2.5rem 2rem 3.5rem 2rem',
               }}
             >
               <img
@@ -278,32 +282,25 @@ export const CoursesSection: React.FC = () => {
                 alt={activeBoard.imageAlt}
                 className="board-featured-img"
                 style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  objectPosition: 'center 25%',
+                  maxWidth: '78%',
+                  maxHeight: '78%',
+                  width: 'auto',
+                  height: 'auto',
+                  objectFit: 'contain',
                   display: 'block',
-                  transition: 'transform 600ms cubic-bezier(0.16, 1, 0.3, 1)',
+                  margin: 'auto',
+                  transition: 'transform 500ms cubic-bezier(0.16, 1, 0.3, 1)',
+                  filter: 'drop-shadow(0 6px 18px rgba(16, 23, 43, 0.08))',
                 }}
               />
 
-              {/* Editorial Gradient Overlay */}
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'linear-gradient(to top, rgba(16, 23, 43, 0.55) 0%, rgba(16, 23, 43, 0.05) 50%, transparent 100%)',
-                  pointerEvents: 'none',
-                }}
-              />
-
-              {/* Authentic Photo Tag */}
+              {/* Official Board Curriculum Badge */}
               <div
                 style={{
                   position: 'absolute',
                   bottom: '16px',
                   left: '16px',
-                  backgroundColor: 'rgba(16, 23, 43, 0.85)',
+                  backgroundColor: 'rgba(16, 23, 43, 0.88)',
                   backdropFilter: 'blur(8px)',
                   padding: '0.45rem 0.9rem',
                   borderRadius: '6px',
@@ -326,7 +323,7 @@ export const CoursesSection: React.FC = () => {
                     backgroundColor: '#1B6B44',
                   }}
                 />
-                <span>Authentic Classroom Session · Lucknow</span>
+                <span>Official Curriculum & Board Syllabus</span>
               </div>
             </div>
           </div>
