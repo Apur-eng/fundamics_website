@@ -233,18 +233,44 @@ export const RankerCarousel: React.FC<RankerCarouselProps> = ({
   const [touchDeltaX, setTouchDeltaX] = useState<number>(0);
   const [isSwiping, setIsSwiping] = useState<boolean>(false);
 
+  // RAF-batched smooth drag updates (prevents 120Hz React state re-render floods)
+  const pendingDeltaXRef = useRef<number>(0);
+  const rafIdRef = useRef<number | null>(null);
+
+  const updateDeltaX = useCallback((dx: number) => {
+    pendingDeltaXRef.current = dx;
+    if (rafIdRef.current === null) {
+      rafIdRef.current = window.requestAnimationFrame(() => {
+        setTouchDeltaX(pendingDeltaXRef.current);
+        rafIdRef.current = null;
+      });
+    }
+  }, []);
+
+  const cancelPendingRaf = useCallback(() => {
+    if (rafIdRef.current !== null) {
+      window.cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => cancelPendingRaf();
+  }, [cancelPendingRaf]);
+
   const markDragFinished = useCallback(() => {
+    cancelPendingRaf();
     isDraggingRef.current = false;
     isMouseDownRef.current = false;
     touchDirectionDecidedRef.current = false;
     if (clearDragTimerRef.current !== null) {
       window.clearTimeout(clearDragTimerRef.current);
     }
-    // Block synthetic clicks from dragging for 220ms
+    // Block synthetic clicks from dragging for 200ms
     clearDragTimerRef.current = window.setTimeout(() => {
       hasDraggedRef.current = false;
-    }, 220);
-  }, []);
+    }, 200);
+  }, [cancelPendingRaf]);
 
   // Card click handler: pure tap/click selects card; drag is suppressed
   const handleCardClick = useCallback((idx: number) => {
@@ -272,6 +298,7 @@ export const RankerCarousel: React.FC<RankerCarouselProps> = ({
     dragStartTimeRef.current = performance.now();
     hasDraggedRef.current = false;
     isDraggingRef.current = false;
+    cancelPendingRaf();
     setTouchDeltaX(0);
   };
 
@@ -281,22 +308,22 @@ export const RankerCarousel: React.FC<RankerCarouselProps> = ({
     const dy = e.clientY - dragStartYRef.current;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    // 16px threshold distinguishes intentional drag from a steady or slightly moving mouse click
-    if (dist > 16) {
+    if (dist > 12) {
       isDraggingRef.current = true;
       hasDraggedRef.current = true;
       setIsSwiping(true);
-      setTouchDeltaX(dx);
+      updateDeltaX(dx);
     }
   };
 
   const onMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isMouseDownRef.current) return;
+    cancelPendingRaf();
     if (isDraggingRef.current) {
       const dx = e.clientX - dragStartXRef.current;
-      if (dx < -35) {
+      if (dx < -30) {
         goToNext();
-      } else if (dx > 35) {
+      } else if (dx > 30) {
         goToPrevious();
       }
       setTouchDeltaX(0);
@@ -308,10 +335,12 @@ export const RankerCarousel: React.FC<RankerCarouselProps> = ({
 
   const onMouseLeaveStage = () => {
     if (isMouseDownRef.current) {
+      cancelPendingRaf();
       if (isDraggingRef.current) {
-        if (touchDeltaX < -35) {
+        const finalDelta = pendingDeltaXRef.current || touchDeltaX;
+        if (finalDelta < -30) {
           goToNext();
-        } else if (touchDeltaX > 35) {
+        } else if (finalDelta > 30) {
           goToPrevious();
         }
         setTouchDeltaX(0);
@@ -328,29 +357,34 @@ export const RankerCarousel: React.FC<RankerCarouselProps> = ({
   // ==========================================
   const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     pauseAutoplay();
-    dragStartXRef.current = e.touches[0].clientX;
-    dragStartYRef.current = e.touches[0].clientY;
+    const touch = e.touches[0];
+    if (!touch) return;
+    dragStartXRef.current = touch.clientX;
+    dragStartYRef.current = touch.clientY;
     dragStartTimeRef.current = performance.now();
     touchDirectionDecidedRef.current = false;
     isDraggingRef.current = false;
     hasDraggedRef.current = false;
+    cancelPendingRaf();
     setTouchDeltaX(0);
   };
 
   const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    const dx = e.touches[0].clientX - dragStartXRef.current;
-    const dy = e.touches[0].clientY - dragStartYRef.current;
+    const touch = e.touches[0];
+    if (!touch) return;
+    const dx = touch.clientX - dragStartXRef.current;
+    const dy = touch.clientY - dragStartYRef.current;
     const absX = Math.abs(dx);
     const absY = Math.abs(dy);
 
     // Determine if gesture is intentionally horizontal vs vertical page scroll
     if (!touchDirectionDecidedRef.current) {
-      if (absX > 16 && absX > absY) {
+      if (absX > 10 && absX > absY) {
         touchDirectionDecidedRef.current = true;
         isDraggingRef.current = true;
         hasDraggedRef.current = true;
         setIsSwiping(true);
-      } else if (absY > 16) {
+      } else if (absY > 10) {
         // Vertical page scroll detected: allow normal browser scrolling without hijacking
         touchDirectionDecidedRef.current = true;
         isDraggingRef.current = false;
@@ -359,21 +393,23 @@ export const RankerCarousel: React.FC<RankerCarouselProps> = ({
     }
 
     if (isDraggingRef.current) {
-      setTouchDeltaX(dx);
+      updateDeltaX(dx);
     }
   };
 
   const onTouchEnd = () => {
+    cancelPendingRaf();
     if (isDraggingRef.current) {
+      const finalDeltaX = pendingDeltaXRef.current || touchDeltaX;
       const dt = performance.now() - dragStartTimeRef.current;
-      const isFlick = dt < 300 && Math.abs(touchDeltaX) > 20;
+      const isFlick = dt < 300 && Math.abs(finalDeltaX) > 20;
 
       // Swiped left -> next student
-      if (touchDeltaX < -35 || (isFlick && touchDeltaX < 0)) {
+      if (finalDeltaX < -30 || (isFlick && finalDeltaX < 0)) {
         goToNext();
       }
       // Swiped right -> previous student
-      else if (touchDeltaX > 35 || (isFlick && touchDeltaX > 0)) {
+      else if (finalDeltaX > 30 || (isFlick && finalDeltaX > 0)) {
         goToPrevious();
       }
 
@@ -385,6 +421,7 @@ export const RankerCarousel: React.FC<RankerCarouselProps> = ({
   };
 
   const onTouchCancel = () => {
+    cancelPendingRaf();
     setTouchDeltaX(0);
     setIsSwiping(false);
     markDragFinished();

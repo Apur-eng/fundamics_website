@@ -542,7 +542,19 @@ export const QueriesPage: React.FC = () => {
                     <span>Submit Query</span>
                   </button>
 
-                  <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textAlign: 'center', marginTop: '0.75rem' }}>
+                  <div style={{ marginTop: '0.85rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontSize: '0.84rem' }}>
+                    <span style={{ color: 'var(--color-text-muted)' }}>Prefer instant response?</span>
+                    <a
+                      href={siteConfig.whatsapp.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--color-accent-green)', fontWeight: 700, textDecoration: 'underline' }}
+                    >
+                      Chat with us on WhatsApp
+                    </a>
+                  </div>
+
+                  <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textAlign: 'center', marginTop: '0.65rem' }}>
                     We respect your privacy. Contact details are used strictly for academic guidance communication.
                   </p>
                 </form>
@@ -570,7 +582,7 @@ export const QueriesPage: React.FC = () => {
                 </h3>
 
                 <p style={{ fontSize: '0.925rem', color: 'rgba(255, 255, 255, 0.85)', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-                  Have an urgent question regarding admissions, batch timings, or demo classes? Call us directly:
+                  Have an urgent question regarding admissions, batch timings, or demo classes? Call us or message us directly:
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
@@ -587,10 +599,33 @@ export const QueriesPage: React.FC = () => {
                       fontWeight: 700,
                       fontSize: '1.1rem',
                       border: '1px solid rgba(255, 255, 255, 0.2)',
+                      textDecoration: 'none',
                     }}
                   >
                     <span>📞 {siteConfig.phones.displayPrimary}</span>
                     <span style={{ fontSize: '0.75rem', color: 'var(--color-hero-accent)', fontWeight: 700 }}>Tap to Call</span>
+                  </a>
+
+                  <a
+                    href={siteConfig.whatsapp.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      backgroundColor: 'rgba(27, 107, 68, 0.35)',
+                      padding: '0.9rem 1.25rem',
+                      borderRadius: 'var(--radius-md)',
+                      color: '#FFFFFF',
+                      fontWeight: 700,
+                      fontSize: '1.05rem',
+                      border: '1px solid rgba(88, 168, 70, 0.45)',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    <span>💬 WhatsApp: {siteConfig.whatsapp.display}</span>
+                    <span style={{ fontSize: '0.75rem', color: '#FFBA08', fontWeight: 700 }}>Chat Now</span>
                   </a>
 
                   <a
@@ -604,6 +639,7 @@ export const QueriesPage: React.FC = () => {
                       borderRadius: 'var(--radius-md)',
                       color: '#FFFFFF',
                       fontSize: '0.95rem',
+                      textDecoration: 'none',
                     }}
                   >
                     <span>Secondary Line: {siteConfig.phones.displaySecondary}</span>

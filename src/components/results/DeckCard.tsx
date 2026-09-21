@@ -91,7 +91,7 @@ function getCardTransform(u: number, isMobile: boolean, isTablet: boolean) {
   return { translateX: 0, scale: 1, opacity: 1 };
 }
 
-export const DeckCard: React.FC<DeckCardProps> = ({
+export const DeckCard = React.memo<DeckCardProps>(({
   student,
   continuousOffset,
   isSwiping = false,
@@ -110,26 +110,9 @@ export const DeckCard: React.FC<DeckCardProps> = ({
   // Dynamic z-index: card closest to center is always on top
   const zIndex = Math.max(1, Math.round(10 - 3 * absU));
 
-  // Dynamic card dimensions based on center proximity
-  let baseWidthCenter = 415;
-  let baseHeightCenter = 570;
-  let baseWidthSide = 305;
-  let baseHeightSide = 495;
-
-  if (isMobile) {
-    baseWidthCenter = 280;
-    baseHeightCenter = 490;
-    baseWidthSide = 225;
-    baseHeightSide = 430;
-  } else if (isTablet) {
-    baseWidthCenter = 380;
-    baseHeightCenter = 540;
-    baseWidthSide = 290;
-    baseHeightSide = 480;
-  }
-
-  const cardWidth = Math.round(baseWidthSide + (baseWidthCenter - baseWidthSide) * centerProgress);
-  const cardHeight = Math.round(baseHeightSide + (baseHeightCenter - baseHeightSide) * centerProgress);
+  // Static base card dimensions (scaling handled purely by GPU transform)
+  const cardWidth = isMobile ? 280 : isTablet ? 380 : 415;
+  const cardHeight = isMobile ? 490 : isTablet ? 540 : 570;
 
   // Crossfade between Center Active panel and Side panel
   const centerPresentationOpacity = Math.max(0, Math.min(1, Math.pow(centerProgress, 1.25)));
@@ -138,10 +121,10 @@ export const DeckCard: React.FC<DeckCardProps> = ({
   // Center proximity indicator
   const isNearlyCenter = absU < 0.35;
 
-  // Transition settings: disabled only during active touch/pointer dragging for 1:1 finger response
+  // GPU-only transition: transform & opacity (never width, height, or continuous shadow)
   const transitionStyle = isSwiping || prefersReducedMotion
     ? 'none'
-    : 'transform 600ms cubic-bezier(0.16, 1, 0.3, 1), opacity 550ms ease, width 600ms cubic-bezier(0.16, 1, 0.3, 1), height 600ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 450ms ease';
+    : 'transform 480ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms ease';
 
   return (
     <div
@@ -159,7 +142,7 @@ export const DeckCard: React.FC<DeckCardProps> = ({
           ? `Active featured student: ${student.name}, ${student.percentage} percent, ${student.class} ${student.board}`
           : `View result for ${student.name}, ${student.percentage} percent, ${student.class} ${student.board}`
       }
-      className={`carousel-deck-card ${isNearlyCenter ? 'is-center' : 'is-side'}`}
+      className={`carousel-deck-card ${isNearlyCenter ? 'is-center' : 'is-side'} ${isSwiping ? 'is-swiping' : ''}`}
       style={{
         position: 'absolute',
         top: '50%',
@@ -294,7 +277,6 @@ export const DeckCard: React.FC<DeckCardProps> = ({
                 objectFit: 'cover',
                 objectPosition: 'top center',
                 display: 'block',
-                filter: 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.45))',
                 userSelect: 'none',
                 WebkitUserSelect: 'none',
                 pointerEvents: 'none',
@@ -325,9 +307,8 @@ export const DeckCard: React.FC<DeckCardProps> = ({
           </div>
         </div>
 
-        {/* White Result Bottom Panel with Staggered Result Reveal */}
+        {/* White Result Bottom Panel */}
         <div
-          key={`center-info-${student.id}-${isNearlyCenter}`}
           style={{
             flex: 1,
             backgroundColor: '#FFFFFF',
@@ -521,12 +502,11 @@ export const DeckCard: React.FC<DeckCardProps> = ({
               objectFit: 'cover',
               objectPosition: 'top center',
               display: 'block',
-              filter: 'drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5))',
               userSelect: 'none',
               WebkitUserSelect: 'none',
               pointerEvents: 'none',
               opacity: 0.9,
-              transition: 'all 300ms ease',
+              transition: 'opacity 250ms ease',
             }}
           />
 
@@ -657,6 +637,14 @@ export const DeckCard: React.FC<DeckCardProps> = ({
           animation: revealItem 460ms cubic-bezier(0.16, 1, 0.3, 1) 210ms both;
         }
 
+        /* Disable animation when actively swiping */
+        .is-swiping .reveal-percentage,
+        .is-swiping .reveal-name,
+        .is-swiping .reveal-metadata,
+        .is-swiping .reveal-institution {
+          animation: none !important;
+        }
+
         /* Side Card Hover & Focus States */
         .carousel-deck-card.is-side {
           --card-scale-mult: 1;
@@ -707,4 +695,6 @@ export const DeckCard: React.FC<DeckCardProps> = ({
       `}</style>
     </div>
   );
-};
+});
+
+DeckCard.displayName = 'DeckCard';

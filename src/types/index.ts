@@ -21,6 +21,13 @@ export interface SiteConfig {
     loginUrl: string;
     enquiryPortalUrl: string;
   };
+  whatsapp: {
+    number: string;
+    cleanNumber: string;
+    display: string;
+    link: string;
+    defaultMessage: string;
+  };
   facilities: {
     transportAvailable: boolean;
     morningBatchesAvailable: boolean;

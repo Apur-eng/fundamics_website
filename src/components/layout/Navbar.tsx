@@ -157,32 +157,59 @@ export const Navbar: React.FC = () => {
             </Button>
           </div>
 
-          {/* Mobile Menu Hamburger Toggle */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }} className="mobile-toggle">
-            <Button
-              variant="green"
-              size="sm"
-              href="/queries"
-              style={{ padding: '0.35rem 0.8rem', fontSize: '0.8rem' }}
-            >
-              Enquire
-            </Button>
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label={mobileMenuOpen ? 'Close Menu' : 'Open Menu'}
-              aria-expanded={mobileMenuOpen}
+          {/* Mobile Menu Actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }} className="mobile-toggle">
+            {/* Quick Call Icon Button on Mobile */}
+            <a
+              href={siteConfig.phones.primary}
+              aria-label={`Call Fundemics Admissions at ${siteConfig.phones.displayPrimary}`}
+              className="mobile-call-btn"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '0.45rem',
+                width: '34px',
+                height: '34px',
+                borderRadius: 'var(--radius-full)',
+                border: '1px solid rgba(255, 186, 8, 0.45)',
+                backgroundColor: 'rgba(255, 186, 8, 0.12)',
+                color: '#FFBA08',
+                textDecoration: 'none',
+                flexShrink: 0,
+                transition: 'all 200ms ease',
+              }}
+            >
+              <Phone size={15} color="#FFBA08" />
+            </a>
+
+            <Button
+              variant="green"
+              size="sm"
+              href="/queries"
+              className="mobile-enquire-btn"
+              style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', flexShrink: 0 }}
+            >
+              Enquire
+            </Button>
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? 'Close Menu' : 'Open Menu'}
+              aria-expanded={mobileMenuOpen}
+              className="mobile-menu-toggle-btn"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '0.42rem',
                 color: '#FFFFFF',
                 borderRadius: 'var(--radius-sm)',
                 border: '1px solid rgba(255, 255, 255, 0.25)',
                 backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                flexShrink: 0,
               }}
             >
-              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
@@ -250,7 +277,31 @@ export const Navbar: React.FC = () => {
             })}
           </div>
 
-          <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            {/* Primary Call Action inside Mobile Menu */}
+            <a
+              href={siteConfig.phones.primary}
+              style={{
+                width: '100%',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.55rem',
+                padding: '0.85rem 1.25rem',
+                borderRadius: 'var(--radius-md)',
+                backgroundColor: 'rgba(255, 186, 8, 0.14)',
+                border: '1.5px solid #FFBA08',
+                color: '#FFBA08',
+                fontWeight: 800,
+                fontSize: '0.98rem',
+                letterSpacing: '0.04em',
+                textDecoration: 'none',
+              }}
+            >
+              <Phone size={18} color="#FFBA08" />
+              <span>CALL US NOW ({siteConfig.phones.displayPrimary})</span>
+            </a>
+
             <Button
               variant="green"
               size="lg"
@@ -273,12 +324,20 @@ export const Navbar: React.FC = () => {
               <p style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-hero-accent)', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Direct Admissions Contact
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.9rem' }}>
-                <a href={siteConfig.phones.primary} style={{ color: '#FFFFFF', fontWeight: 700 }}>
-                  📞 {siteConfig.phones.displayPrimary}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.9rem' }}>
+                <a href={siteConfig.phones.primary} style={{ color: '#FFFFFF', fontWeight: 700, textDecoration: 'none' }}>
+                  📞 {siteConfig.phones.displayPrimary} (Desk)
                 </a>
-                <a href={siteConfig.phones.secondary} style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-                  📞 {siteConfig.phones.displaySecondary}
+                <a href={siteConfig.phones.secondary} style={{ color: 'rgba(255, 255, 255, 0.8)', textDecoration: 'none' }}>
+                  📞 {siteConfig.phones.displaySecondary} (Direct)
+                </a>
+                <a
+                  href={siteConfig.whatsapp.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: '#58A846', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                >
+                  <span>💬 WhatsApp: {siteConfig.whatsapp.display}</span>
                 </a>
                 <span style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.6)', marginTop: '0.35rem' }}>
                   📍 Triveni Nagar • Faizullaganj • Aliganj (Lucknow)
@@ -291,6 +350,19 @@ export const Navbar: React.FC = () => {
 
       {/* Media Query CSS for Desktop vs Mobile Header */}
       <style>{`
+        @media (max-width: 380px) {
+          .mobile-toggle {
+            gap: 0.35rem !important;
+          }
+          .mobile-call-btn {
+            width: 32px !important;
+            height: 32px !important;
+          }
+          .mobile-enquire-btn {
+            padding: 0.3rem 0.55rem !important;
+            font-size: 0.75rem !important;
+          }
+        }
         @media (min-width: 900px) {
           .desktop-nav {
             display: flex !important;

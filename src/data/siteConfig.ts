@@ -23,9 +23,25 @@ export const siteConfig: SiteConfig = {
     loginUrl: 'https://app.fundemicstutorials.in/app/login.php',
     enquiryPortalUrl: 'https://app.fundemicstutorials.in/Enquiry/',
   },
+  whatsapp: {
+    number: '+917617018888',
+    cleanNumber: '917617018888',
+    display: '+91 7617018888',
+    link: 'https://wa.me/917617018888',
+    defaultMessage: 'Hello Fundemics Tutorials, I would like to enquire about admissions and classes. Please share the details.',
+  },
   facilities: {
     transportAvailable: true,
     morningBatchesAvailable: true,
     eveningBatchesAvailable: true,
   },
 };
+
+/**
+ * Generates a wa.me URL with an optional context-specific pre-filled message.
+ */
+export const getWhatsAppUrl = (customMessage?: string): string => {
+  const message = customMessage || siteConfig.whatsapp.defaultMessage;
+  return `https://wa.me/${siteConfig.whatsapp.cleanNumber}?text=${encodeURIComponent(message)}`;
+};
+

@@ -202,12 +202,24 @@ export const Footer: React.FC = () => {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.86rem', color: '#FFFFFF', fontWeight: 600 }}>
               <Phone size={14} color="#1B6B44" />
-              <a href="tel:7617018888" style={{ color: '#FFFFFF', textDecoration: 'none' }}>
-                7617018888
+              <a href={siteConfig.phones.primary} style={{ color: '#FFFFFF', textDecoration: 'none' }}>
+                {siteConfig.phones.displayPrimary}
               </a>
               <span>/</span>
-              <a href="tel:7800001288" style={{ color: '#FFFFFF', textDecoration: 'none' }}>
-                7800001288
+              <a href={siteConfig.phones.secondary} style={{ color: '#FFFFFF', textDecoration: 'none' }}>
+                {siteConfig.phones.displaySecondary}
+              </a>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.84rem', color: '#58A846', fontWeight: 600, marginTop: '0.45rem' }}>
+              <span>💬 WhatsApp:</span>
+              <a
+                href={siteConfig.whatsapp.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#58A846', textDecoration: 'none', fontWeight: 700 }}
+              >
+                {siteConfig.whatsapp.display}
               </a>
             </div>
           </div>

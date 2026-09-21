@@ -8,6 +8,8 @@ import { VisionPage } from './pages/VisionPage';
 import { TeachersPage } from './pages/TeachersPage';
 import { QueriesPage } from './pages/QueriesPage';
 
+import { WhatsAppFloatingButton } from './components/common/WhatsAppFloatingButton';
+
 const PageContent: React.FC = () => {
   const { currentPath } = useRouter();
 
@@ -36,6 +38,7 @@ const PageContent: React.FC = () => {
         {renderCurrentPage()}
       </main>
       <Footer />
+      <WhatsAppFloatingButton />
     </div>
   );
 };
