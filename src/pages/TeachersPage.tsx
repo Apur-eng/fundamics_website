@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from '../context/RouterContext';
-import {
-  ArrowRight,
-  ShieldCheck,
-  Sparkles,
-  Layers,
-  GraduationCap,
-  Users,
-} from 'lucide-react';
+import { ArrowRight, ShieldCheck, Users } from 'lucide-react';
 import { teachersData, FACULTY_CATEGORIES } from '../data/teachers';
 import { TeacherCard } from '../components/teachers/TeacherCard';
 import type { FacultyCategory } from '../types';

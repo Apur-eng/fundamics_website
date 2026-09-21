@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TeacherItem } from '../../types';
-import { GraduationCap, Clock, Award, ShieldCheck, Sparkles } from 'lucide-react';
+import { Clock, ShieldCheck, Sparkles } from 'lucide-react';
 
 interface TeacherCardProps {
   teacher: TeacherItem;
