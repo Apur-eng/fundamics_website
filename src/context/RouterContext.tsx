@@ -29,6 +29,24 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       window.location.href = path;
       return;
     }
+    if (path.startsWith('/#')) {
+      const hash = path.substring(1);
+      if (window.location.pathname === '/' || window.location.pathname === '') {
+        const el = document.querySelector(hash);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
+      } else {
+        window.history.pushState({}, '', '/');
+        setCurrentPath('/');
+        setTimeout(() => {
+          const el = document.querySelector(hash);
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 150);
+        return;
+      }
+    }
     window.history.pushState({}, '', path);
     setCurrentPath(path);
     window.scrollTo({ top: 0, behavior: 'smooth' });
