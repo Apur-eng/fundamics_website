@@ -45,7 +45,7 @@ export const QueriesPage: React.FC = () => {
 
     if (!formData.branch) {
       errs.branch = 'Please select your preferred branch.';
-    } else if (!['Faizullaganj', 'Aliganj'].includes(formData.branch)) {
+    } else if (!['Triveni Nagar', 'Faizullaganj', 'Aliganj'].includes(formData.branch)) {
       errs.branch = 'Please select a valid branch option.';
     }
 
@@ -294,6 +294,7 @@ export const QueriesPage: React.FC = () => {
                       }}
                     >
                       <option value="">Select Branch</option>
+                      <option value="Triveni Nagar">Triveni Nagar</option>
                       <option value="Faizullaganj">Faizullaganj</option>
                       <option value="Aliganj">Aliganj</option>
                     </select>
