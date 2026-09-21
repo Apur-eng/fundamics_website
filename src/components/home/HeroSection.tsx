@@ -31,19 +31,36 @@ export const HeroSection: React.FC = () => {
 
       {/* Main Center Content */}
       <div className="container" style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
-        {/* 1. Small Eyebrow */}
-        <p
+        {/* 1. 10 Years of Excellence Milestone Badge */}
+        <div
           style={{
-            fontSize: 'clamp(0.75rem, 1.1vw, 0.875rem)',
-            fontWeight: 600,
-            letterSpacing: '0.16em',
-            textTransform: 'uppercase',
-            color: 'rgba(255, 255, 255, 0.9)',
-            marginBottom: '1.25rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            backgroundColor: 'rgba(255, 186, 8, 0.12)',
+            border: '1px solid rgba(255, 186, 8, 0.45)',
+            borderRadius: '999px',
+            padding: '0.35rem 0.95rem',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            marginBottom: 'clamp(1rem, 2.5vw, 1.35rem)',
           }}
         >
-          CLASSES I–XII &nbsp;·&nbsp; ICSE &nbsp;·&nbsp; ISC &nbsp;·&nbsp; CBSE
-        </p>
+          <span style={{ fontSize: '0.78rem', lineHeight: 1, color: '#FFBA08' }}>★</span>
+          <span
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(0.72rem, 1.2vw, 0.8rem)',
+              fontWeight: 800,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              color: '#FFBA08',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            10 Years of Excellence
+          </span>
+        </div>
 
         {/* 2. Large Elegant Editorial Headline */}
         <h1

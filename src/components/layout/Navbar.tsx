@@ -66,43 +66,10 @@ export const Navbar: React.FC = () => {
             justifyContent: 'space-between',
           }}
         >
-          {/* Brand Logo + Milestone Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <Link href="/" aria-label="Fundemics Tutorials Home">
-              <Logo variant="light" size="md" />
-            </Link>
-
-            {/* 10 Years of Excellence badge */}
-            <div
-              className="excellence-badge"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.3rem',
-                backgroundColor: 'rgba(255, 186, 8, 0.12)',
-                border: '1px solid rgba(255, 186, 8, 0.45)',
-                borderRadius: '999px',
-                padding: '0.28rem 0.75rem',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-              }}
-            >
-              <span style={{ fontSize: '0.72rem', lineHeight: 1 }}>★</span>
-              <span
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '0.72rem',
-                  fontWeight: 800,
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                  color: '#FFBA08',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                10 Years of Excellence
-              </span>
-            </div>
-          </div>
+          {/* Brand Logo - Crisp White & Green on Dark/Hero */}
+          <Link href="/" aria-label="Fundemics Tutorials Home">
+            <Logo variant="light" size="md" />
+          </Link>
 
           {/* Desktop Navigation Links */}
           <nav
@@ -324,11 +291,6 @@ export const Navbar: React.FC = () => {
 
       {/* Media Query CSS for Desktop vs Mobile Header */}
       <style>{`
-        @media (max-width: 479px) {
-          .excellence-badge {
-            display: none !important;
-          }
-        }
         @media (min-width: 900px) {
           .desktop-nav {
             display: flex !important;
