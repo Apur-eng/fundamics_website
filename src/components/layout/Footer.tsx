@@ -206,8 +206,8 @@ export const Footer: React.FC = () => {
                 7617018888
               </a>
               <span>/</span>
-              <a href="tel:9129443266" style={{ color: '#FFFFFF', textDecoration: 'none' }}>
-                9129443266
+              <a href="tel:7800001288" style={{ color: '#FFFFFF', textDecoration: 'none' }}>
+                7800001288
               </a>
             </div>
           </div>

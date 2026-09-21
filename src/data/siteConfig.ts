@@ -15,8 +15,7 @@ export const siteConfig: SiteConfig = {
   },
   email: 'info@fundemicstutorials.in',
   social: {
-    // Official YouTube channel placeholder, waiting for client URL
-    youtube: '#youtube-channel-tbd',
+    youtube: 'https://www.youtube.com/@fundemicstutorials?si=zLRcoKsitXaXmRDp',
     facebook: 'https://www.facebook.com/people/Fundemics-Tutorials-LLP/100064155546202',
     instagram: 'https://www.instagram.com/thefundemicstutorials',
   },
