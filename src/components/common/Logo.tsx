@@ -38,18 +38,37 @@ export const Logo: React.FC<LogoProps> = ({
       />
 
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
-        <span
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontWeight: 800,
-            fontSize: size === 'sm' ? '1.1rem' : size === 'lg' ? '1.65rem' : '1.35rem',
-            letterSpacing: '0.04em',
-            color: textColor,
-            textTransform: 'uppercase',
-          }}
-        >
-          Fundemics
-        </span>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '3px' }}>
+          <span
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 800,
+              fontSize: size === 'sm' ? '1.1rem' : size === 'lg' ? '1.65rem' : '1.35rem',
+              letterSpacing: '0.04em',
+              color: textColor,
+              textTransform: 'uppercase',
+            }}
+          >
+            Fundemics
+          </span>
+          <span
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 800,
+              fontSize: size === 'sm' ? '0.5rem' : size === 'lg' ? '0.68rem' : '0.58rem',
+              letterSpacing: '0.08em',
+              color: subtitleColor,
+              border: `1.2px solid ${subtitleColor}`,
+              borderRadius: '3px',
+              padding: '1px 3px',
+              lineHeight: 1,
+              marginTop: size === 'sm' ? '1px' : '2px',
+              display: 'inline-block',
+            }}
+          >
+            LLP
+          </span>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '2px' }}>
           <span
             style={{
