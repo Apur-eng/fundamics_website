@@ -12,7 +12,7 @@ interface RankerFiltersProps {
   availableYears: string[];
 }
 
-const BOARDS: ('ALL' | BoardType)[] = ['ALL', 'ICSE', 'ISC', 'CBSE', 'UP BOARD'];
+const BOARDS: ('ALL' | BoardType)[] = ['ALL', 'ICSE', 'ISC', 'CBSE', 'STATE BOARD'];
 
 export const RankerFilters: React.FC<RankerFiltersProps> = ({
   selectedBoard,

@@ -8,6 +8,7 @@ import { WhatMakesDifferent } from '../components/home/WhatMakesDifferent';
 import { TeachersSection } from '../components/home/TeachersSection';
 import { VisionSection } from '../components/home/VisionSection';
 import { CentresSection } from '../components/home/CentresSection';
+import { CertificationsSection } from '../components/home/CertificationsSection';
 import { FinalContactCTA } from '../components/home/FinalContactCTA';
 
 export const HomePage: React.FC = () => {
@@ -40,7 +41,10 @@ export const HomePage: React.FC = () => {
       {/* 9. OUR CENTRES */}
       <CentresSection />
 
-      {/* 10. CONTACT / QUERY CTA */}
+      {/* 10. CERTIFICATIONS & REGISTRATION */}
+      <CertificationsSection />
+
+      {/* 11. CONTACT / QUERY CTA */}
       <FinalContactCTA />
     </div>
   );

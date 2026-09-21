@@ -397,7 +397,7 @@ export const RankerHero: React.FC<RankerHeroProps> = ({
                       lineHeight: 1.25,
                     }}
                   >
-                    ICSE · ISC · CBSE · UP BOARD
+                    ICSE · ISC · CBSE · STATE BOARD
                   </div>
                   <div
                     style={{

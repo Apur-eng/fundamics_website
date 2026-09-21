@@ -54,7 +54,7 @@ const BOARDS: BoardData[] = [
   },
   {
     id: 'up-board',
-    name: 'UP BOARD',
+    name: 'STATE BOARD',
     classesRange: 'Classes I–XII',
     tagline: 'Complete state board curriculum mastery with dedicated bilingual mentorship for high academic distinction.',
     stages: [
@@ -64,8 +64,8 @@ const BOARDS: BoardData[] = [
       { title: 'SENIOR SECONDARY', classes: 'Classes XI–XII' },
     ],
     image: '/assets/faculty_mentor.jpg',
-    imageAlt: 'UP Board students in an intensive problem-solving session with senior faculty at Fundemics Tutorials',
-    ctaText: 'Explore UP Board',
+    imageAlt: 'State Board students in an intensive problem-solving session with senior faculty at Fundemics Tutorials',
+    ctaText: 'Explore State Board',
     route: '/courses/up-board',
   },
 ];

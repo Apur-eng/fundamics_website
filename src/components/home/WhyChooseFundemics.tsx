@@ -25,7 +25,7 @@ const METHODS: MethodStage[] = [
     number: '02',
     principle: 'DIRECTION',
     title: 'Board-Focused Learning',
-    label: 'ICSE · ISC · CBSE · UP BOARD',
+    label: 'ICSE · ISC · CBSE · STATE BOARD',
     description:
       'Academic support structured around the board and class students actually follow.',
     image: '/assets/hero_classroom.jpg',
