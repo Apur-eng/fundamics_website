@@ -6,7 +6,6 @@ export const mainNavItems: NavItem[] = [
   { label: 'Our Vision', href: '/vision' },
   { label: 'Faculty', href: '/teachers' },
   { label: 'Certifications', href: '/#certifications' },
-  { label: 'Queries', href: '/queries' },
 ];
 
 export const footerNavItems: NavItem[] = [
