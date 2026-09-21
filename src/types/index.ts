@@ -64,9 +64,23 @@ export interface RankerItem {
   isPlaceholder?: boolean;
 }
 
+export type FacultyCategory =
+  | 'Strategic Planning'
+  | 'Biology'
+  | 'Social Sciences'
+  | 'Mathematics'
+  | 'Physics'
+  | 'Operations & Support Team'
+  | 'Chemistry'
+  | 'Computer Science'
+  | 'Commerce'
+  | 'Pre-Primary';
+
 export interface TeacherItem {
   id: string;
   name: string;
+  category: FacultyCategory;
+  designation?: string;
   qualification: string;
   subjects: string[];
   classes: string;
@@ -76,18 +90,20 @@ export interface TeacherItem {
   isBrochureVerified?: boolean;
 }
 
+export type FacultyItem = TeacherItem;
+
 export interface BranchItem {
   id: string;
   name: string;
-  addressLine1: string;
-  addressLine2: string;
+  addressLine1?: string;
+  addressLine2?: string;
   city: string;
-  pincode: string;
+  pincode?: string;
   landmark?: string;
   phone?: string;
   hours: string;
   isPrimary?: boolean;
-  mapEmbedQuery: string;
+  mapEmbedQuery?: string;
 }
 
 export interface TestimonialItem {

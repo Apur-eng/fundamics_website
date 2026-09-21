@@ -8,6 +8,7 @@ export const QueriesPage: React.FC = () => {
     name: '',
     phone: '',
     email: '',
+    branch: '',
     targetClass: 'Class X',
     board: 'ICSE',
     preferredBatch: 'Morning Batch',
@@ -30,6 +31,9 @@ export const QueriesPage: React.FC = () => {
     }
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errs.email = 'Please enter a valid email address.';
+    }
+    if (!formData.branch) {
+      errs.branch = 'Please select a branch.';
     }
     if (!formData.query.trim()) {
       errs.query = 'Please let us know your question or requirements.';
@@ -55,6 +59,7 @@ export const QueriesPage: React.FC = () => {
       name: '',
       phone: '',
       email: '',
+      branch: '',
       targetClass: 'Class X',
       board: 'ICSE',
       preferredBatch: 'Morning Batch',
@@ -229,6 +234,39 @@ export const QueriesPage: React.FC = () => {
                     {errors.name && (
                       <span style={{ fontSize: '0.75rem', color: '#DC2626', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
                         <AlertCircle size={12} /> {errors.name}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Branch Selection */}
+                  <div style={{ marginBottom: '1.25rem' }}>
+                    <label
+                      htmlFor="branch-select"
+                      style={{ display: 'block', fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-primary-navy)', marginBottom: '0.4rem' }}
+                    >
+                      Branch *
+                    </label>
+                    <select
+                      id="branch-select"
+                      value={formData.branch}
+                      onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '0.8rem 1rem',
+                        borderRadius: 'var(--radius-md)',
+                        border: errors.branch ? '1.5px solid #DC2626' : '1px solid var(--color-border-light)',
+                        backgroundColor: 'var(--color-ivory)',
+                        fontSize: '0.95rem',
+                      }}
+                    >
+                      <option value="">Select Branch</option>
+                      <option value="Faizullaganj">Faizullaganj</option>
+                      <option value="Aliganj">Aliganj</option>
+                    </select>
+                    {errors.branch && (
+                      <span style={{ fontSize: '0.75rem', color: '#DC2626', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
+                        <AlertCircle size={12} /> {errors.branch}
                       </span>
                     )}
                   </div>

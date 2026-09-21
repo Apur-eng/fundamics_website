@@ -4,7 +4,7 @@ export const mainNavItems: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Rankers', href: '/rankers' },
   { label: 'Our Vision', href: '/vision' },
-  { label: 'Teachers', href: '/teachers' },
+  { label: 'Faculty', href: '/teachers' },
   { label: 'Queries', href: '/queries' },
 ];
 
@@ -12,7 +12,7 @@ export const footerNavItems: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Rankers', href: '/rankers' },
   { label: 'Our Vision', href: '/vision' },
-  { label: 'Teachers', href: '/teachers' },
+  { label: 'Faculty', href: '/teachers' },
   { label: 'Queries', href: '/queries' },
 ];
 

@@ -7,10 +7,10 @@ export const siteConfig: SiteConfig = {
   sinceYear: '2014',
   phones: {
     primary: 'tel:+917617018888',
-    secondary: 'tel:+919129443266',
+    secondary: 'tel:+917800001288',
     alternate: 'tel:+918181906139',
     displayPrimary: '7617018888',
-    displaySecondary: '9129443266',
+    displaySecondary: '7800001288',
     displayAlternate: '8181906139',
   },
   email: 'info@fundemicstutorials.in',
