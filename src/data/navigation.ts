@@ -19,5 +19,5 @@ export const footerNavItems: NavItem[] = [
 export const quickLinks: NavItem[] = [
   { label: 'Student Login (LMS)', href: 'https://app.fundemicstutorials.in/app/login.php', isExternal: true },
   { label: 'Online Admission Portal', href: 'https://app.fundemicstutorials.in/Enquiry/', isExternal: true },
-  { label: 'YouTube Lectures', href: '#youtube-channel-tbd', isExternal: true },
+  { label: 'YouTube Lectures', href: 'https://www.youtube.com/@fundemicstutorials?si=zLRcoKsitXaXmRDp', isExternal: true },
 ];

@@ -108,7 +108,7 @@ export const FinalContactCTA: React.FC = () => {
             <Phone size={18} color="#1B6B44" />
             <span style={{ fontSize: '0.9rem', color: '#706A60', fontWeight: 500 }}>Direct Line:</span>
             <a
-              href="tel:9129443266"
+              href="tel:7800001288"
               style={{
                 fontSize: '1.05rem',
                 color: '#10172B',
