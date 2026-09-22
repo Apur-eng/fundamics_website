@@ -127,7 +127,7 @@ export const SeoHead: React.FC<SeoProps> = ({
       '@context': 'https://schema.org',
       '@graph': schemaGraph,
     });
-  }, [title, description, canonicalPath, breadcrumbs, structuredData]);
+  }, [title, description, canonicalPath, breadcrumbs, structuredData, canonicalUrl, logoUrl]);
 
   return null;
 };

@@ -58,9 +58,7 @@ export const TeachersSection: React.FC = () => {
       aria-label="Meet the Teachers"
     >
       <div className="container">
-        {/* ==================================================================== */}
         {/* SECTION HEADER                                                       */}
-        {/* ==================================================================== */}
         <div
           style={{
             display: 'flex',
@@ -139,9 +137,7 @@ export const TeachersSection: React.FC = () => {
           </Link>
         </div>
 
-        {/* ==================================================================== */}
         {/* ASYMMETRIC TWO-PERSON EDITORIAL FACULTY SPREAD                       */}
-        {/* ==================================================================== */}
         <div className="faculty-editorial-spread">
           {/* PROFILE 01 — MANISH K. VERMA (FEATURED PRIMARY) */}
           {facultyMembers[0] && (

@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { BookOpen, GraduationCap, ArrowRight } from 'lucide-react';
 import { rankersData, type BoardType, type RankerRecord } from '../../data/rankersData';
+import { useLenis } from '../../motion/lenis';
 
 interface RankerHeroProps {
   selectedBoard?: 'ALL' | BoardType;
@@ -144,13 +145,13 @@ export const RankerHero: React.FC<RankerHeroProps> = ({
   const displaySessionHeader = selectedYear !== 'ALL' ? selectedYear : (hasData ? (activeScorer?.session || 'ALL SESSIONS') : 'ALL SESSIONS');
   const studentSchoolDisplay = activeScorer?.school || '';
 
+  const { scrollTo } = useLenis();
+
   const handleViewAllResults = (e: React.MouseEvent) => {
     e.preventDefault();
     const filterNav = document.getElementById('rankers-filter-nav') || document.getElementById('featured-achievers');
     if (filterNav) {
-      const NAVBAR_HEIGHT = 72;
-      const top = filterNav.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT;
-      window.scrollTo({ top, behavior: 'smooth' });
+      scrollTo(filterNav, { offset: -72 });
     }
   };
 

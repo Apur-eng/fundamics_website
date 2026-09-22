@@ -119,6 +119,18 @@ export const teachersData: TeacherItem[] = [
     image: '/assets/mayank_aggarwal.jpeg',
     isBrochureVerified: true,
   },
+  {
+    id: 'faculty-manish-k-verma',
+    name: 'Manish K. Verma',
+    category: 'Physics',
+    qualification: 'Co-Founder · B.Tech, M.Tech (IIT Dhanbad)',
+    subjects: ['Physics & Advanced Sciences', 'Conceptual Mechanics', 'Problem Solving'],
+    classes: 'Classes IX – XII (ICSE, ISC, CBSE & State Board)',
+    experience: 'Co-Founder & Senior Mentor',
+    bio: 'Alumnus of Indian Institute of Technology (IIT Dhanbad). Co-founder and senior mentor specializing in breaking down complex physical phenomena and mathematical models into crystal-clear intuitive frameworks.',
+    image: '/assets/manish_k_verma.jpeg',
+    isBrochureVerified: true,
+  },
 
   // 6. OPERATIONS & SUPPORT TEAM
   {

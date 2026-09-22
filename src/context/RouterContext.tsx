@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+import { getLenis } from '../motion/lenis/LenisContext';
+
 interface RouterContextType {
   currentPath: string;
   navigate: (path: string) => void;
@@ -31,7 +33,12 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
     if (path.startsWith('/#')) {
       const hash = path.substring(1);
+      const lenis = getLenis();
       if (window.location.pathname === '/' || window.location.pathname === '') {
+        if (lenis) {
+          lenis.scrollTo(hash, { offset: -72 });
+          return;
+        }
         const el = document.querySelector(hash);
         if (el) {
           el.scrollIntoView({ behavior: 'smooth' });
@@ -41,15 +48,25 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         window.history.pushState({}, '', '/');
         setCurrentPath('/');
         setTimeout(() => {
-          const el = document.querySelector(hash);
-          if (el) el.scrollIntoView({ behavior: 'smooth' });
+          const activeLenis = getLenis();
+          if (activeLenis) {
+            activeLenis.scrollTo(hash, { offset: -72 });
+          } else {
+            const el = document.querySelector(hash);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }
         }, 150);
         return;
       }
     }
     window.history.pushState({}, '', path);
     setCurrentPath(path);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const lenis = getLenis();
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    }
   };
 
   return (

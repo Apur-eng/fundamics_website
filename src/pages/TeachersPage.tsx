@@ -33,9 +33,7 @@ export const TeachersPage: React.FC = () => {
           { name: 'Faculty', path: '/teachers' },
         ]}
       />
-      {/* ==================================================================== */}
       {/* 1. HERO SECTION — Institutional Identity                             */}
-      {/* ==================================================================== */}
       <section
         className="faculty-hero-section"
         style={{
@@ -51,15 +49,12 @@ export const TeachersPage: React.FC = () => {
         }}
         aria-label="Our Faculty & Mentors Hero"
       >
-        {/* Photographic Classroom Texture in Background */}
+        {/* Ambient Subtle Lighting in Background */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            backgroundImage: `url('/assets/hero_classroom.jpg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center 35%',
-            opacity: 0.18,
+            background: 'radial-gradient(ellipse 65% 55% at 50% 25%, rgba(32, 42, 87, 0.45) 0%, transparent 70%)',
             pointerEvents: 'none',
           }}
           aria-hidden="true"
@@ -153,9 +148,7 @@ export const TeachersPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ==================================================================== */}
       {/* 2. CATEGORY NAVIGATION / FILTER BAR                                  */}
-      {/* ==================================================================== */}
       <nav
         className="faculty-category-nav"
         style={{
@@ -259,9 +252,7 @@ export const TeachersPage: React.FC = () => {
         </div>
       </nav>
 
-      {/* ==================================================================== */}
       {/* 3. FACULTY CATEGORIES SECTIONS                                       */}
-      {/* ==================================================================== */}
       <main
         style={{
           backgroundColor: '#FFFFFF',
@@ -399,9 +390,7 @@ export const TeachersPage: React.FC = () => {
         </div>
       </main>
 
-      {/* ==================================================================== */}
       {/* 4. FINAL CTA SECTION                                                 */}
-      {/* ==================================================================== */}
       <section
         style={{
           backgroundColor: '#0C1424',

@@ -1,53 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Button } from '../common/Button';
 import { ArrowRight, ChevronDown } from 'lucide-react';
-
-interface SlideItem {
-  id: number;
-  image: string;
-  alt: string;
-}
-
-const slides: SlideItem[] = [
-  {
-    id: 1,
-    image: '/assets/hero_classroom.jpg',
-    alt: 'Students attentively learning in classroom at Fundemics Tutorials',
-  },
-  {
-    id: 2,
-    image: '/assets/mentorship.jpg',
-    alt: 'Teacher mentoring student with personalized academic guidance',
-  },
-  {
-    id: 3,
-    image: '/assets/about_vision.jpg',
-    alt: 'Secondary students studying collaboratively with books',
-  },
-  {
-    id: 4,
-    image: '/assets/campus_center.jpg',
-    alt: 'Academic classroom environment and campus at Fundemics Lucknow',
-  },
-];
+import { useLenis } from '../../motion/lenis';
 
 export const HeroSlideshow: React.FC = () => {
-  const [currentSlide, setCurrentSlide] = useState<number>(0);
-
-  // Auto-advance slides every 6.5 seconds with slow, elegant crossfade
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 6500);
-    return () => clearInterval(timer);
-  }, []);
+  const { scrollTo } = useLenis();
 
   const scrollToCourses = (e: React.MouseEvent) => {
     e.preventDefault();
-    const target = document.getElementById('courses');
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth' });
-    }
+    scrollTo('#courses', { offset: -72 });
   };
 
   return (
@@ -62,66 +23,45 @@ export const HeroSlideshow: React.FC = () => {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#10172B',
+        backgroundColor: '#0C1424',
       }}
       aria-label="Hero Introduction"
     >
-      {/* Background Slideshow with Slow Crossfades */}
-      {slides.map((slide, index) => {
-        const isActive = index === currentSlide;
-        return (
-          <div
-            key={slide.id}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              opacity: isActive ? 1 : 0,
-              transition: 'opacity 1800ms cubic-bezier(0.4, 0, 0.2, 1)',
-              zIndex: 1,
-              pointerEvents: 'none',
-            }}
-          >
-            <img
-              src={slide.image}
-              alt={slide.alt}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                objectPosition: 'center 35%',
-                transform: isActive ? 'scale(1.03)' : 'scale(1)',
-                transition: 'transform 7000ms ease-out',
-              }}
-            />
-          </div>
-        );
-      })}
-
-      {/* Cinematic Dark Overlay Scrim (Zero glassmorphism, pure photographic contrast) */}
+      {/* Ambient Architectural Lighting */}
       <div
         style={{
           position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
+          inset: 0,
           background: `
-            linear-gradient(180deg, 
-              rgba(16, 23, 43, 0.58) 0%, 
-              rgba(16, 23, 43, 0.65) 45%, 
-              rgba(16, 23, 43, 0.88) 100%
-            )
+            radial-gradient(ellipse 70% 50% at 50% 25%, rgba(32, 42, 87, 0.45) 0%, transparent 70%),
+            radial-gradient(circle at 85% 85%, rgba(43, 176, 111, 0.08) 0%, transparent 45%),
+            radial-gradient(circle at 15% 20%, rgba(83, 105, 184, 0.12) 0%, transparent 40%),
+            linear-gradient(180deg, rgba(12, 20, 36, 0.4) 0%, #0C1424 100%)
           `,
-          zIndex: 2,
           pointerEvents: 'none',
+          zIndex: 1,
         }}
         aria-hidden="true"
       />
 
-      {/* Minimal Hero Center Content */}
+      {/* Subtle Geometry Grid Overlay */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `
+            linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px)
+          `,
+          backgroundSize: '54px 54px',
+          opacity: 0.6,
+          pointerEvents: 'none',
+          zIndex: 2,
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Hero Center Content */}
       <div
         className="container"
         style={{
@@ -132,7 +72,7 @@ export const HeroSlideshow: React.FC = () => {
           paddingTop: '3rem',
         }}
       >
-        {/* 1. 10 Years of Excellence Milestone Badge */}
+        {/* Milestone Badge */}
         <div
           style={{
             display: 'inline-flex',
@@ -163,7 +103,7 @@ export const HeroSlideshow: React.FC = () => {
           </span>
         </div>
 
-        {/* 2. Large Editorial Headline */}
+        {/* Editorial Headline */}
         <h1
           style={{
             fontFamily: "'Newsreader', Georgia, serif",
@@ -179,7 +119,7 @@ export const HeroSlideshow: React.FC = () => {
           Educating for a Better Tomorrow.
         </h1>
 
-        {/* 3. Short Supporting Line */}
+        {/* Supporting Line */}
         <p
           style={{
             fontFamily: 'var(--font-sans)',
@@ -197,7 +137,7 @@ export const HeroSlideshow: React.FC = () => {
           Strong foundations. Personal attention. Better learning.
         </p>
 
-        {/* 4. Two Clean Action Buttons */}
+        {/* Action Buttons */}
         <div
           style={{
             display: 'flex',
@@ -231,52 +171,17 @@ export const HeroSlideshow: React.FC = () => {
         </div>
       </div>
 
-      {/* Subtle Bottom Slide Controls / Thin Indicators */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '2.5rem',
-          left: 0,
-          right: 0,
-          zIndex: 3,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.65rem',
-        }}
-        role="tablist"
-        aria-label="Hero Slideshow Controls"
-      >
-        {slides.map((slide, idx) => {
-          const isActive = idx === currentSlide;
-          return (
-            <button
-              key={slide.id}
-              onClick={() => setCurrentSlide(idx)}
-              role="tab"
-              aria-selected={isActive}
-              aria-label={`Go to slide ${idx + 1}`}
-              style={{
-                width: isActive ? '36px' : '10px',
-                height: '4px',
-                borderRadius: '2px',
-                backgroundColor: isActive ? 'var(--color-accent-green)' : 'rgba(255, 255, 255, 0.35)',
-                transition: 'all 400ms ease',
-                padding: 0,
-                cursor: 'pointer',
-              }}
-            />
-          );
-        })}
-      </div>
-
-      {/* Subtle Scroll Down Indicator */}
+      {/* Scroll Down Indicator */}
       <a
         href="#featured-students"
+        onClick={(e) => {
+          e.preventDefault();
+          scrollTo('#featured-students');
+        }}
         aria-label="Scroll to featured student toppers"
         style={{
           position: 'absolute',
-          bottom: '1rem',
+          bottom: '1.5rem',
           right: 'clamp(1rem, 4vw, 3rem)',
           zIndex: 3,
           color: 'rgba(255, 255, 255, 0.65)',

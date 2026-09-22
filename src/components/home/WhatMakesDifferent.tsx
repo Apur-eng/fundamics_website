@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useLenis } from '../../motion/lenis';
 
 interface Differentiator {
   number: string;
@@ -45,6 +46,7 @@ const STEP_HEIGHT = 82;
 const NODE_OFFSET_Y = 12;
 
 export const WhatMakesDifferent: React.FC = () => {
+  const { scrollTo } = useLenis();
   // Continuous scroll progress across stages: 0.000 to 4.000
   const [stageProgress, setStageProgress] = useState<number>(0);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -126,11 +128,7 @@ export const WhatMakesDifferent: React.FC = () => {
     const sectionStart = scrollTop + rect.top - NAVBAR_HEIGHT;
     const scrollDistance = rect.height - (window.innerHeight - NAVBAR_HEIGHT);
     const targetScrollY = sectionStart + (index / 4) * scrollDistance;
-
-    window.scrollTo({
-      top: targetScrollY,
-      behavior: 'smooth',
-    });
+    scrollTo(targetScrollY);
   };
 
   // The active index for discrete readouts (e.g. "03 / 05")
@@ -156,9 +154,7 @@ export const WhatMakesDifferent: React.FC = () => {
       }}
       aria-label="More Than Just Classes"
     >
-      {/* ==================================================================== */}
       {/* DESKTOP LAYOUT (>= 1024px): Pinned Stage with Continuous Progress    */}
-      {/* ==================================================================== */}
       <div className="diff-desktop-stage">
         <div className="container" style={{ maxWidth: '1240px' }}>
           <div className="diff-desktop-layout">
@@ -496,9 +492,7 @@ export const WhatMakesDifferent: React.FC = () => {
         </div>
       </div>
 
-      {/* ==================================================================== */}
       {/* MOBILE LAYOUT (< 1024px): Scroll-Driven Overlapping Card Stack      */}
-      {/* ==================================================================== */}
       <div className="diff-mobile-layout">
         <div className="container">
           {/* Mobile Header Intro */}

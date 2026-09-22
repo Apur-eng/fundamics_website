@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Users, Compass, BarChart3, BookOpen, type LucideIcon } from 'lucide-react';
+import { useLenis } from '../../motion/lenis';
 
 interface MethodStage {
   number: string;
@@ -7,7 +8,7 @@ interface MethodStage {
   title: string;
   label?: string;
   description: string;
-  image: string;
+  icon: LucideIcon;
   caption: string;
 }
 
@@ -18,7 +19,7 @@ const METHODS: MethodStage[] = [
     title: 'Small Batches',
     description:
       'More attention. More interaction. Every student gets room to ask, understand and improve.',
-    image: '/assets/mentorship.jpg',
+    icon: Users,
     caption: 'A classroom built around participation, not just attendance.',
   },
   {
@@ -28,7 +29,7 @@ const METHODS: MethodStage[] = [
     label: 'ICSE · ISC · CBSE · STATE BOARD',
     description:
       'Academic support structured around the board and class students actually follow.',
-    image: '/assets/hero_classroom.jpg',
+    icon: Compass,
     caption: 'Curriculum and instruction aligned directly to school board syllabi.',
   },
   {
@@ -37,7 +38,7 @@ const METHODS: MethodStage[] = [
     title: 'Continuous Assessment',
     description:
       'Regular testing and performance tracking help identify strengths, gaps and areas that need more attention.',
-    image: '/assets/about_vision.jpg',
+    icon: BarChart3,
     caption: 'Regular checkpoints and testing that track real academic growth.',
   },
   {
@@ -46,7 +47,7 @@ const METHODS: MethodStage[] = [
     title: 'Beyond the Classroom',
     description:
       'LMS access, revision material, attendance tracking and academic support extend learning beyond the classroom.',
-    image: '/assets/achievers.jpg',
+    icon: BookOpen,
     caption: 'Curated revision resources and academic guidance extending beyond class hours.',
   },
 ];
@@ -79,6 +80,7 @@ const MOBILE_PANEL_CONFIG = [
 ];
 
 export const WhyChooseFundemics: React.FC = () => {
+  const { scrollTo } = useLenis();
   const sectionRef = useRef<HTMLElement | null>(null);
   const [scrollProgress, setScrollProgress] = useState<number>(0);
   const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -155,7 +157,7 @@ export const WhyChooseFundemics: React.FC = () => {
       // Position scroll near the center of the target stage
       const targetProgress = (targetIndex + 0.5) / 4;
       const targetScrollY = window.scrollY + rect.top - NAVBAR_HEIGHT + targetProgress * scrollDistance;
-      window.scrollTo({ top: targetScrollY, behavior: 'smooth' });
+      scrollTo(targetScrollY);
     } else {
       setActiveIndex(targetIndex);
     }
@@ -165,18 +167,14 @@ export const WhyChooseFundemics: React.FC = () => {
     setActiveMobileStage(targetIndex);
     const targetEl = mobilePanelsRef.current[targetIndex];
     if (targetEl) {
-      const NAVBAR_HEIGHT = 72;
-      const top = targetEl.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT - 20;
-      window.scrollTo({ top, behavior: 'smooth' });
+      scrollTo(targetEl, { offset: -92 });
     }
   };
 
   const handleExploreCTA = () => {
     const target = document.getElementById('differentiation');
     if (target) {
-      const NAVBAR_HEIGHT = 72;
-      const top = target.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT;
-      window.scrollTo({ top, behavior: 'smooth' });
+      scrollTo(target, { offset: -72 });
     }
   };
 
@@ -264,35 +262,115 @@ export const WhyChooseFundemics: React.FC = () => {
               {/* LEFT: Photographic Column (Tall Editorial Aspect) */}
               <div className="method-image-col">
                 <div className="method-image-frame">
-                  {METHODS.map((m, idx) => (
-                    <img
-                      key={m.number}
-                      src={m.image}
-                      alt={m.title}
-                      loading={idx === 0 ? 'eager' : 'lazy'}
-                      className="method-stage-img"
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        objectPosition:
-                          idx === 0
-                            ? 'center 25%'
-                            : idx === 1
-                            ? 'center 35%'
-                            : idx === 2
-                            ? 'center 40%'
-                            : 'center 20%',
-                        opacity: activeIndex === idx ? 1 : 0,
-                        transform: activeIndex === idx ? 'scale(1)' : 'scale(1.03)',
-                        transition:
-                          'opacity 650ms cubic-bezier(0.16, 1, 0.3, 1), transform 750ms cubic-bezier(0.16, 1, 0.3, 1)',
-                        pointerEvents: activeIndex === idx ? 'auto' : 'none',
-                      }}
-                    />
-                  ))}
+                  {METHODS.map((m, idx) => {
+                    const IconComp = m.icon;
+                    return (
+                      <div
+                        key={m.number}
+                        className="method-stage-visual"
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          width: '100%',
+                          height: '100%',
+                          backgroundColor: '#0F172A',
+                          background: 'radial-gradient(ellipse at 50% 35%, #1C2646 0%, #0C1322 85%)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '2.5rem 2rem',
+                          textAlign: 'center',
+                          opacity: activeIndex === idx ? 1 : 0,
+                          transform: activeIndex === idx ? 'scale(1)' : 'scale(1.02)',
+                          transition:
+                            'opacity 650ms cubic-bezier(0.16, 1, 0.3, 1), transform 750ms cubic-bezier(0.16, 1, 0.3, 1)',
+                          pointerEvents: activeIndex === idx ? 'auto' : 'none',
+                        }}
+                      >
+                        <span
+                          style={{
+                            position: 'absolute',
+                            fontFamily: "'Newsreader', Georgia, serif",
+                            fontSize: '11rem',
+                            fontWeight: 700,
+                            color: 'rgba(255, 255, 255, 0.035)',
+                            lineHeight: 1,
+                            userSelect: 'none',
+                            pointerEvents: 'none',
+                          }}
+                          aria-hidden="true"
+                        >
+                          {m.number}
+                        </span>
+
+                        <div
+                          style={{
+                            width: '68px',
+                            height: '68px',
+                            borderRadius: '50%',
+                            backgroundColor: 'rgba(43, 176, 111, 0.12)',
+                            border: '1.5px solid rgba(43, 176, 111, 0.35)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#2BB06F',
+                            marginBottom: '1.25rem',
+                            position: 'relative',
+                            zIndex: 1,
+                            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
+                          }}
+                        >
+                          <IconComp size={30} strokeWidth={1.8} />
+                        </div>
+
+                        <span
+                          style={{
+                            fontFamily: 'var(--font-display)',
+                            fontSize: '0.74rem',
+                            fontWeight: 800,
+                            letterSpacing: '0.2em',
+                            textTransform: 'uppercase',
+                            color: '#2BB06F',
+                            marginBottom: '0.35rem',
+                            position: 'relative',
+                            zIndex: 1,
+                          }}
+                        >
+                          {m.principle}
+                        </span>
+
+                        <h4
+                          style={{
+                            fontFamily: "'Newsreader', Georgia, serif",
+                            fontSize: '1.65rem',
+                            fontWeight: 600,
+                            color: '#FAF8F5',
+                            margin: '0 0 0.65rem 0',
+                            position: 'relative',
+                            zIndex: 1,
+                          }}
+                        >
+                          {m.title}
+                        </h4>
+
+                        <p
+                          style={{
+                            fontFamily: 'var(--font-sans)',
+                            fontSize: '0.88rem',
+                            color: 'rgba(250, 248, 245, 0.72)',
+                            lineHeight: 1.5,
+                            maxWidth: '280px',
+                            margin: 0,
+                            position: 'relative',
+                            zIndex: 1,
+                          }}
+                        >
+                          {m.caption}
+                        </p>
+                      </div>
+                    );
+                  })}
 
                   {/* Stage Watermark Badge on Image */}
                   <div
@@ -942,25 +1020,106 @@ export const WhyChooseFundemics: React.FC = () => {
                           }
                     }
                   >
-                    <img
-                      src={m.image}
-                      alt={m.title}
-                      loading="lazy"
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        objectPosition:
-                          idx === 0
-                            ? 'center 25%'
-                            : idx === 1
-                            ? 'center 35%'
-                            : idx === 2
-                            ? 'center 40%'
-                            : 'center 20%',
-                        display: 'block',
-                      }}
-                    />
+                    {(() => {
+                      const IconComp = m.icon;
+                      return (
+                        <div
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            backgroundColor: '#0F172A',
+                            background: 'radial-gradient(ellipse at 50% 35%, #1C2646 0%, #0C1322 85%)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '1.5rem',
+                            textAlign: 'center',
+                            position: 'relative',
+                          }}
+                        >
+                          <span
+                            style={{
+                              position: 'absolute',
+                              fontFamily: "'Newsreader', Georgia, serif",
+                              fontSize: '8rem',
+                              fontWeight: 700,
+                              color: 'rgba(255, 255, 255, 0.04)',
+                              lineHeight: 1,
+                              userSelect: 'none',
+                              pointerEvents: 'none',
+                            }}
+                            aria-hidden="true"
+                          >
+                            {m.number}
+                          </span>
+
+                          <div
+                            style={{
+                              width: '54px',
+                              height: '54px',
+                              borderRadius: '50%',
+                              backgroundColor: 'rgba(43, 176, 111, 0.12)',
+                              border: '1.5px solid rgba(43, 176, 111, 0.35)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#2BB06F',
+                              marginBottom: '0.85rem',
+                              position: 'relative',
+                              zIndex: 1,
+                            }}
+                          >
+                            <IconComp size={24} strokeWidth={1.8} />
+                          </div>
+
+                          <span
+                            style={{
+                              fontFamily: 'var(--font-display)',
+                              fontSize: '0.70rem',
+                              fontWeight: 800,
+                              letterSpacing: '0.18em',
+                              textTransform: 'uppercase',
+                              color: '#2BB06F',
+                              marginBottom: '0.25rem',
+                              position: 'relative',
+                              zIndex: 1,
+                            }}
+                          >
+                            {m.principle}
+                          </span>
+
+                          <h4
+                            style={{
+                              fontFamily: "'Newsreader', Georgia, serif",
+                              fontSize: '1.35rem',
+                              fontWeight: 600,
+                              color: '#FAF8F5',
+                              margin: '0 0 0.45rem 0',
+                              position: 'relative',
+                              zIndex: 1,
+                            }}
+                          >
+                            {m.title}
+                          </h4>
+
+                          <p
+                            style={{
+                              fontFamily: 'var(--font-sans)',
+                              fontSize: '0.82rem',
+                              color: 'rgba(250, 248, 245, 0.72)',
+                              lineHeight: 1.45,
+                              maxWidth: '240px',
+                              margin: 0,
+                              position: 'relative',
+                              zIndex: 1,
+                            }}
+                          >
+                            {m.caption}
+                          </p>
+                        </div>
+                      );
+                    })()}
 
                     {/* Stage Label Badge: Deep navy + warm ivory (Point 6) */}
                     <div

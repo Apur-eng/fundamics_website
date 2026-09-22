@@ -85,25 +85,74 @@ export const CentresSection: React.FC = () => {
               justifyContent: 'space-between',
             }}
           >
-            {/* Campus Photo */}
+            {/* Campus Architectural Header Treatment */}
             <div
               style={{
                 width: '100%',
-                height: '220px',
+                height: '200px',
                 position: 'relative',
-                backgroundColor: '#10172B',
+                backgroundColor: '#0C1424',
+                background: 'radial-gradient(ellipse at 50% 30%, #1E284A 0%, #0C1424 85%)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '2rem',
+                textAlign: 'center',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
               }}
             >
-              <img
-                src="/assets/campus_center.jpg"
-                alt="Fundemics Tutorials Main Campus Lucknow"
+              {/* Subtle Grid Pattern */}
+              <div
                 style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  display: 'block',
+                  position: 'absolute',
+                  inset: 0,
+                  backgroundImage: `
+                    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px)
+                  `,
+                  backgroundSize: '24px 24px',
+                  opacity: 0.7,
+                  pointerEvents: 'none',
                 }}
+                aria-hidden="true"
               />
+
+              <div
+                style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(43, 176, 111, 0.12)',
+                  border: '1.5px solid rgba(43, 176, 111, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#2BB06F',
+                  marginBottom: '0.85rem',
+                  position: 'relative',
+                  zIndex: 1,
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
+                }}
+              >
+                <MapPin size={26} strokeWidth={1.8} />
+              </div>
+
+              <span
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  color: '#2BB06F',
+                  position: 'relative',
+                  zIndex: 1,
+                }}
+              >
+                TRIVENI NAGAR · MAIN CAMPUS
+              </span>
+
               <div
                 style={{
                   position: 'absolute',
@@ -117,9 +166,10 @@ export const CentresSection: React.FC = () => {
                   padding: '3px 9px',
                   borderRadius: '4px',
                   textTransform: 'uppercase',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
                 }}
               >
-                Main Campus
+                Flagship Centre
               </div>
             </div>
 

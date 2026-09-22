@@ -9,6 +9,7 @@ import { TeachersPage } from './pages/TeachersPage';
 import { QueriesPage } from './pages/QueriesPage';
 
 import { WhatsAppFloatingButton } from './components/common/WhatsAppFloatingButton';
+import { LenisProvider } from './motion/lenis/LenisProvider';
 
 const PageContent: React.FC = () => {
   const { currentPath } = useRouter();
@@ -46,7 +47,9 @@ const PageContent: React.FC = () => {
 export function App() {
   return (
     <RouterProvider>
-      <PageContent />
+      <LenisProvider>
+        <PageContent />
+      </LenisProvider>
     </RouterProvider>
   );
 }

@@ -15,7 +15,9 @@ dist-ssr
 .env.*
 
 # Documents and docx files
-docs/
+!docs/
+!docs/PROJECT_STRUCTURE.md
+docs/structure.md
 *.docx
 *.doc
 

@@ -5,9 +5,11 @@ import { mainNavItems } from '../../data/navigation';
 import { Link, useRouter } from '../../context/RouterContext';
 import { Menu, X, Phone, ArrowRight } from 'lucide-react';
 import { siteConfig } from '../../data/siteConfig';
+import { useLenis } from '../../motion/lenis';
 
 export const Navbar: React.FC = () => {
   const { currentPath } = useRouter();
+  const { lenis } = useLenis();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -29,14 +31,20 @@ export const Navbar: React.FC = () => {
     setMobileMenuOpen(false);
   }, [currentPath]);
 
-  // Lock body scroll when mobile menu is open
+  // Lock body scroll and pause Lenis when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
+      lenis?.stop();
     } else {
       document.body.style.overflow = '';
+      lenis?.start();
     }
-  }, [mobileMenuOpen]);
+    return () => {
+      document.body.style.overflow = '';
+      lenis?.start();
+    };
+  }, [mobileMenuOpen, lenis]);
 
   return (
     <header

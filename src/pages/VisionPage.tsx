@@ -29,9 +29,7 @@ export const VisionPage: React.FC = () => {
           { name: 'Our Vision', path: '/vision' },
         ]}
       />
-      {/* ==================================================================== */}
       {/* 1. HERO SECTION — Refined Cinematic Hero with Visible Classroom Photo */}
-      {/* ==================================================================== */}
       <section
         className="vision-hero-section"
         style={{
@@ -47,7 +45,7 @@ export const VisionPage: React.FC = () => {
         }}
         aria-label="Our Vision and Philosophy Hero"
       >
-        {/* Background Photograph Layer — Increased visibility of classroom environment */}
+        {/* Background Architectural Glow Layer */}
         <div
           className="vision-hero-bg-photo"
           style={{
@@ -56,10 +54,7 @@ export const VisionPage: React.FC = () => {
             right: 0,
             bottom: 0,
             width: 'clamp(540px, 64%, 980px)',
-            backgroundImage: `url('/assets/about_vision.jpg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center 32%',
-            opacity: 0.72,
+            background: 'radial-gradient(ellipse 65% 55% at 75% 45%, rgba(32, 42, 87, 0.45) 0%, transparent 70%)',
             pointerEvents: 'none',
           }}
           aria-hidden="true"
@@ -321,9 +316,7 @@ export const VisionPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ==================================================================== */}
       {/* 2. PHILOSOPHY QUOTE — Warm Ivory Institutional Manifesto             */}
-      {/* ==================================================================== */}
       <section
         style={{
           backgroundColor: '#FAF7F2',
@@ -423,9 +416,7 @@ export const VisionPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ==================================================================== */}
       {/* 3. VISION + MISSION — Editorial Split with Authentic Mentorship Photo */}
-      {/* ==================================================================== */}
       <section
         style={{
           backgroundColor: '#FFFFFF',
@@ -444,22 +435,98 @@ export const VisionPage: React.FC = () => {
                   position: 'relative',
                   borderRadius: '18px',
                   overflow: 'hidden',
-                  backgroundColor: '#10172B',
+                  backgroundColor: '#0C1424',
+                  background: 'radial-gradient(ellipse at 50% 35%, #1C2646 0%, #0C1424 85%)',
                   boxShadow: '0 16px 42px rgba(16, 23, 43, 0.08), 0 2px 8px rgba(16, 23, 43, 0.04)',
                   border: '1px solid #EAE4D8',
+                  height: 'clamp(380px, 42vw, 520px)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '2.5rem',
+                  textAlign: 'center',
                 }}
               >
-                <img
-                  src="/assets/mentorship.jpg"
-                  alt="Authentic teacher-student mentoring session at Fundemics Tutorials in Lucknow"
+                {/* Concentric Decorative Rings */}
+                <div
                   style={{
-                    width: '100%',
-                    height: 'clamp(380px, 42vw, 520px)',
-                    objectFit: 'cover',
-                    objectPosition: 'center 28%',
-                    display: 'block',
+                    position: 'absolute',
+                    width: '380px',
+                    height: '380px',
+                    borderRadius: '50%',
+                    border: '1px solid rgba(43, 176, 111, 0.08)',
+                    pointerEvents: 'none',
                   }}
+                  aria-hidden="true"
                 />
+
+                <div
+                  style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    backgroundColor: 'rgba(43, 176, 111, 0.12)',
+                    border: '1.5px solid rgba(43, 176, 111, 0.35)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#2BB06F',
+                    marginBottom: '1.25rem',
+                    position: 'relative',
+                    zIndex: 1,
+                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
+                  }}
+                >
+                  <Users size={28} strokeWidth={1.8} />
+                </div>
+
+                <span
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '0.74rem',
+                    fontWeight: 800,
+                    letterSpacing: '0.2em',
+                    textTransform: 'uppercase',
+                    color: '#2BB06F',
+                    marginBottom: '0.5rem',
+                    position: 'relative',
+                    zIndex: 1,
+                  }}
+                >
+                  INDIVIDUAL MENTORSHIP
+                </span>
+
+                <h3
+                  style={{
+                    fontFamily: "'Newsreader', Georgia, serif",
+                    fontSize: 'clamp(1.6rem, 2.4vw, 2.1rem)',
+                    fontWeight: 600,
+                    color: '#FAF8F5',
+                    margin: '0 0 0.85rem 0',
+                    lineHeight: 1.25,
+                    maxWidth: '360px',
+                    position: 'relative',
+                    zIndex: 1,
+                  }}
+                >
+                  Learning Tailored to Every Student.
+                </h3>
+
+                <p
+                  style={{
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: '0.92rem',
+                    color: 'rgba(250, 248, 245, 0.76)',
+                    lineHeight: 1.6,
+                    maxWidth: '340px',
+                    margin: '0 0 3.5rem 0',
+                    position: 'relative',
+                    zIndex: 1,
+                  }}
+                >
+                  Small batches, continuous doubt clarification, and structured academic tracking.
+                </p>
 
                 {/* Overlapping lower-left caption badge */}
                 <div
@@ -685,9 +752,7 @@ export const VisionPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ==================================================================== */}
       {/* 4. SIX PRINCIPLES — Warm Ivory Background with Compact Cards System  */}
-      {/* ==================================================================== */}
       <section
         style={{
           backgroundColor: '#FAF7F2',
@@ -865,9 +930,7 @@ export const VisionPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ==================================================================== */}
       {/* 5. FINAL COMMITMENT SECTION — Deep Navy Full-Width with Organic Art  */}
-      {/* ==================================================================== */}
       <section
         style={{
           backgroundColor: '#0C1424',

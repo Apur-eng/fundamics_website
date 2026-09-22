@@ -90,9 +90,7 @@ export const CoursesSection: React.FC = () => {
       aria-label="Choose Your Path — Academic Boards"
     >
       <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-        {/* ==================================================================== */}
         {/* SECTION HEADER                                                       */}
-        {/* ==================================================================== */}
         <div style={{ maxWidth: '780px', marginBottom: 'clamp(2.5rem, 5vw, 3.5rem)' }}>
           {/* Eyebrow */}
           <div
@@ -159,9 +157,7 @@ export const CoursesSection: React.FC = () => {
           </p>
         </div>
 
-        {/* ==================================================================== */}
         {/* EDITORIAL HORIZONTAL BOARD SELECTOR (TABS)                           */}
-        {/* ==================================================================== */}
         <div
           role="tablist"
           aria-label="Academic Boards"
@@ -248,10 +244,8 @@ export const CoursesSection: React.FC = () => {
           })}
         </div>
 
-        {/* ==================================================================== */}
         {/* FEATURED ACADEMIC PANEL                                              */}
         {/* Re-mounts with animation on activeBoardId change                     */}
-        {/* ==================================================================== */}
         <div
           key={activeBoard.id}
           id={`panel-${activeBoard.id}`}
