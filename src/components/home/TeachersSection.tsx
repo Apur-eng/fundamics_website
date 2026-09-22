@@ -167,6 +167,10 @@ export const TeachersSection: React.FC = () => {
                 <img
                   src={facultyMembers[0].image}
                   alt={facultyMembers[0].imageAlt}
+                  loading="lazy"
+                  decoding="async"
+                  width={500}
+                  height={420}
                   className="faculty-photo"
                   style={{
                     width: '100%',
@@ -358,6 +362,10 @@ export const TeachersSection: React.FC = () => {
                 <img
                   src={facultyMembers[1].image}
                   alt={facultyMembers[1].imageAlt}
+                  loading="lazy"
+                  decoding="async"
+                  width={420}
+                  height={380}
                   className="faculty-photo"
                   style={{
                     width: '100%',

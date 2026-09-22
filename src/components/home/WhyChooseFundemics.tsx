@@ -488,6 +488,8 @@ export const WhyChooseFundemics: React.FC = () => {
                         {/* Progress connecting line */}
                         {idx < METHODS.length - 1 && (
                           <div
+                            role="presentation"
+                            aria-hidden="true"
                             style={{
                               flex: 1,
                               height: '2px',

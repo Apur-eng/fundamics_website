@@ -39,6 +39,10 @@ export const CmsBatchesSection: React.FC = () => {
               <img
                 src="/assets/cms_focused.webp"
                 alt="City Montessori School (CMS) students celebrating academic excellence and board milestones at Fundemics Tutorials Lucknow"
+                loading="lazy"
+                decoding="async"
+                width={640}
+                height={480}
                 style={{
                   width: '100%',
                   height: '100%',

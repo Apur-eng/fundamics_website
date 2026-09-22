@@ -174,6 +174,10 @@ export const CertificationsSection: React.FC = () => {
                   <img
                     src={cert.image}
                     alt={cert.title}
+                    loading="lazy"
+                    decoding="async"
+                    width={380}
+                    height={513}
                     style={{
                       width: '100%',
                       height: '100%',
@@ -181,7 +185,6 @@ export const CertificationsSection: React.FC = () => {
                       objectPosition: 'top center',
                       display: 'block',
                     }}
-                    loading="lazy"
                   />
 
                   {/* Hover Lightbox Overlay */}

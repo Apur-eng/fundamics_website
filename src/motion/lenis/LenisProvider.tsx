@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Lenis from 'lenis';
 import { useRouter } from '../../context/RouterContext';
 import { useReducedMotionPreference } from '../useReducedMotionPreference';
@@ -16,11 +16,10 @@ export interface LenisProviderProps {
 export const LenisProvider: React.FC<LenisProviderProps> = ({ children }) => {
   const [lenisInstance, setLenisInstance] = useState<Lenis | null>(null);
   const { currentPath } = useRouter();
-  const rafIdRef = useRef<number | null>(null);
   const prefersReducedMotion = useReducedMotionPreference();
 
   useEffect(() => {
-    // Exact Lenis instance configuration from Averra
+    // Exact Lenis instance configuration from Averra with autoRaf
     const lenis = new Lenis({
       duration: prefersReducedMotion ? 0 : 1.15,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -29,25 +28,13 @@ export const LenisProvider: React.FC<LenisProviderProps> = ({ children }) => {
       smoothWheel: !prefersReducedMotion,
       wheelMultiplier: 0.95,
       touchMultiplier: 1.5,
-      autoRaf: false,
+      autoRaf: true,
     });
 
     setLenisInstance(lenis);
     setGlobalLenis(lenis);
 
-    // Synchronous RAF loop
-    const raf = (time: number) => {
-      lenis.raf(time);
-      rafIdRef.current = requestAnimationFrame(raf);
-    };
-
-    rafIdRef.current = requestAnimationFrame(raf);
-
     return () => {
-      if (rafIdRef.current) {
-        cancelAnimationFrame(rafIdRef.current);
-        rafIdRef.current = null;
-      }
       lenis.destroy();
       setLenisInstance(null);
       setGlobalLenis(null);

@@ -1,16 +1,38 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { SeoHead } from '../components/common/SeoHead';
 import { HeroSlideshow } from '../components/home/HeroSlideshow';
-import { FeaturedTopperCarousel } from '../components/home/FeaturedTopperCarousel';
-import { CoursesSection } from '../components/home/CoursesSection';
-import { WhyChooseFundemics } from '../components/home/WhyChooseFundemics';
-import { CmsBatchesSection } from '../components/home/CmsBatchesSection';
-import { WhatMakesDifferent } from '../components/home/WhatMakesDifferent';
-import { TeachersSection } from '../components/home/TeachersSection';
-import { VisionSection } from '../components/home/VisionSection';
-import { CentresSection } from '../components/home/CentresSection';
-import { CertificationsSection } from '../components/home/CertificationsSection';
-import { FinalContactCTA } from '../components/home/FinalContactCTA';
+
+// Lazy-load below-the-fold sections to protect initial FCP, LCP, and TBT
+const FeaturedTopperCarousel = React.lazy(() =>
+  import('../components/home/FeaturedTopperCarousel').then((m) => ({ default: m.FeaturedTopperCarousel }))
+);
+const CoursesSection = React.lazy(() =>
+  import('../components/home/CoursesSection').then((m) => ({ default: m.CoursesSection }))
+);
+const WhyChooseFundemics = React.lazy(() =>
+  import('../components/home/WhyChooseFundemics').then((m) => ({ default: m.WhyChooseFundemics }))
+);
+const CmsBatchesSection = React.lazy(() =>
+  import('../components/home/CmsBatchesSection').then((m) => ({ default: m.CmsBatchesSection }))
+);
+const WhatMakesDifferent = React.lazy(() =>
+  import('../components/home/WhatMakesDifferent').then((m) => ({ default: m.WhatMakesDifferent }))
+);
+const TeachersSection = React.lazy(() =>
+  import('../components/home/TeachersSection').then((m) => ({ default: m.TeachersSection }))
+);
+const VisionSection = React.lazy(() =>
+  import('../components/home/VisionSection').then((m) => ({ default: m.VisionSection }))
+);
+const CentresSection = React.lazy(() =>
+  import('../components/home/CentresSection').then((m) => ({ default: m.CentresSection }))
+);
+const CertificationsSection = React.lazy(() =>
+  import('../components/home/CertificationsSection').then((m) => ({ default: m.CertificationsSection }))
+);
+const FinalContactCTA = React.lazy(() =>
+  import('../components/home/FinalContactCTA').then((m) => ({ default: m.FinalContactCTA }))
+);
 
 export const HomePage: React.FC = () => {
   return (
@@ -39,38 +61,41 @@ export const HomePage: React.FC = () => {
           },
         ]}
       />
-      {/* 1. HERO */}
+      {/* 1. HERO — synchronous above-the-fold critical render */}
       <HeroSlideshow />
 
-      {/* 2. OUR STUDENTS, OUR PRIDE — Real achievements. Real journeys. */}
-      <FeaturedTopperCarousel />
+      {/* BELOW-THE-FOLD SECTIONS — loaded in Suspense */}
+      <Suspense fallback={<div style={{ minHeight: '300px' }} />}>
+        {/* 2. OUR STUDENTS, OUR PRIDE — Real achievements. Real journeys. */}
+        <FeaturedTopperCarousel />
 
-      {/* 3. CHOOSE YOUR PATH — “Choose your board. Find your academic path.” */}
-      <CoursesSection />
+        {/* 3. CHOOSE YOUR PATH — “Choose your board. Find your academic path.” */}
+        <CoursesSection />
 
-      {/* 4. THE FUNDEMICS METHOD — “The difference is in how we teach.” */}
-      <WhyChooseFundemics />
+        {/* 4. THE FUNDEMICS METHOD — “The difference is in how we teach.” */}
+        <WhyChooseFundemics />
 
-      {/* 5. SPECIALIZED SUPPORT FOR CMS STUDENTS */}
-      <CmsBatchesSection />
+        {/* 5. SPECIALIZED SUPPORT FOR CMS STUDENTS */}
+        <CmsBatchesSection />
 
-      {/* 6. MORE THAN JUST CLASSES */}
-      <WhatMakesDifferent />
+        {/* 6. MORE THAN JUST CLASSES */}
+        <WhatMakesDifferent />
 
-      {/* 7. MEET THE TEACHERS */}
-      <TeachersSection />
+        {/* 7. MEET THE TEACHERS */}
+        <TeachersSection />
 
-      {/* 8. OUR VISION */}
-      <VisionSection />
+        {/* 8. OUR VISION */}
+        <VisionSection />
 
-      {/* 9. OUR CENTRES */}
-      <CentresSection />
+        {/* 9. OUR CENTRES */}
+        <CentresSection />
 
-      {/* 10. CERTIFICATIONS & REGISTRATION */}
-      <CertificationsSection />
+        {/* 10. CERTIFICATIONS & REGISTRATION */}
+        <CertificationsSection />
 
-      {/* 11. CONTACT / QUERY CTA */}
-      <FinalContactCTA />
+        {/* 11. CONTACT / QUERY CTA */}
+        <FinalContactCTA />
+      </Suspense>
     </div>
   );
 };

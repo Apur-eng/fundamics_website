@@ -29,6 +29,7 @@ export const Logo: React.FC<LogoProps> = ({
         alt="Fundemics Tutorials"
         width={iconSize}
         height={iconHeight}
+        decoding="async"
         style={{
           width: `${iconSize}px`,
           height: `${iconHeight}px`,

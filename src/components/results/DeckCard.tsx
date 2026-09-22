@@ -139,8 +139,8 @@ export const DeckCard = React.memo<DeckCardProps>(({
       }}
       aria-label={
         isNearlyCenter
-          ? `Active featured student: ${student.name}, ${student.percentage} percent, ${student.class} ${student.board}`
-          : `View result for ${student.name}, ${student.percentage} percent, ${student.class} ${student.board}`
+          ? `${student.name}, ${student.percentage}% - ${student.class} ${student.board} featured student`
+          : `${student.name}, ${student.percentage}% - Click to view result`
       }
       className={`carousel-deck-card ${isNearlyCenter ? 'is-center' : 'is-side'} ${isSwiping ? 'is-swiping' : ''}`}
       style={{
@@ -268,6 +268,10 @@ export const DeckCard = React.memo<DeckCardProps>(({
             <img
               src={student.image || ''}
               alt={student.name}
+              loading="lazy"
+              decoding="async"
+              width={isMobile ? 210 : 260}
+              height={isMobile ? 210 : 260}
               draggable={false}
               onDragStart={(e) => e.preventDefault()}
               style={{
@@ -492,6 +496,10 @@ export const DeckCard = React.memo<DeckCardProps>(({
           <img
             src={student.image || ''}
             alt={student.name}
+            loading="lazy"
+            decoding="async"
+            width={isMobile ? 210 : 260}
+            height={isMobile ? 210 : 260}
             draggable={false}
             onDragStart={(e) => e.preventDefault()}
             className="side-card-photo"

@@ -274,6 +274,10 @@ export const CoursesSection: React.FC = () => {
               <img
                 src={activeBoard.image}
                 alt={activeBoard.imageAlt}
+                loading="lazy"
+                decoding="async"
+                width={360}
+                height={280}
                 className="board-featured-img"
                 style={{
                   maxWidth: '78%',

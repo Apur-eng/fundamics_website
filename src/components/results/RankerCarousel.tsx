@@ -702,6 +702,8 @@ export const RankerCarousel: React.FC<RankerCarouselProps> = ({
             return (
               <button
                 key={s.id}
+                role="tab"
+                aria-selected={isActive}
                 onClick={() => {
                   goToIndex(idx);
                   scheduleResumeAutoplay();
