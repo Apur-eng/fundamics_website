@@ -3,17 +3,20 @@ import { rankersData, type RankerRecord } from '../../data/rankersData';
 import { DeckCard } from './DeckCard';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { Link } from '../../context/RouterContext';
+import { EditorialResultsRail } from './EditorialResultsRail';
 
 export interface RankerCarouselProps {
   students?: RankerRecord[];
   onSelectStudent?: (student: RankerRecord) => void;
   showBottomCta?: boolean;
+  showEditorialRail?: boolean;
 }
 
 export const RankerCarousel: React.FC<RankerCarouselProps> = ({
   students,
   onSelectStudent,
   showBottomCta = true,
+  showEditorialRail = showBottomCta,
 }) => {
   // Dynamically filter and sort rankers
   const sortedRankers = useMemo(() => {
@@ -124,6 +127,24 @@ export const RankerCarousel: React.FC<RankerCarouselProps> = ({
       }, 5000);
     }, 4000);
   }, [clearAutoplayTimers, goToNext]);
+
+  // Click handler from secondary continuous editorial results rail
+  const handleRailSelectStudent = useCallback(
+    (studentId: string) => {
+      pauseAutoplay();
+      const targetIdx = sortedRankers.findIndex((s) => s.id === studentId);
+      if (targetIdx !== -1) {
+        goToIndex(targetIdx);
+        scheduleResumeAutoplay();
+      } else {
+        const found = rankersData.find((s) => s.id === studentId);
+        if (found && onSelectStudent) {
+          onSelectStudent(found);
+        }
+      }
+    },
+    [sortedRankers, goToIndex, scheduleResumeAutoplay, pauseAutoplay, onSelectStudent]
+  );
 
   // Start autoplay on initial mount
   useEffect(() => {
@@ -728,6 +749,14 @@ export const RankerCarousel: React.FC<RankerCarouselProps> = ({
           })}
         </div>
       </div>
+
+      {/* Secondary Continuous Editorial Results Rail */}
+      {showEditorialRail && (
+        <EditorialResultsRail
+          activeStudentId={sortedRankers[currentIndex]?.id}
+          onSelectStudent={handleRailSelectStudent}
+        />
+      )}
 
       {/* Bottom Primary CTA Button */}
       {showBottomCta && (
