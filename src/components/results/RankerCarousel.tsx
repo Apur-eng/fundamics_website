@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { rankersData, type RankerRecord } from '../../data/rankersData';
-import { DeckCard } from './DeckCard';
-import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { AchieverCard } from './AchieverCard';
+import { ChevronLeft, ChevronRight, ArrowRight, Pause, Play, Sparkles } from 'lucide-react';
 import { Link } from '../../context/RouterContext';
 import { EditorialResultsRail } from './EditorialResultsRail';
 
@@ -10,57 +10,66 @@ export interface RankerCarouselProps {
   onSelectStudent?: (student: RankerRecord) => void;
   showBottomCta?: boolean;
   showEditorialRail?: boolean;
+  autoPlayInterval?: number;
 }
 
 export const RankerCarousel: React.FC<RankerCarouselProps> = ({
   students,
   onSelectStudent,
   showBottomCta = true,
-  showEditorialRail = showBottomCta,
+  showEditorialRail = false,
 }) => {
-  // Dynamically filter and sort rankers
+  // ─── 1. CANONICAL STUDENT DATASET ───
   const sortedRankers = useMemo(() => {
     if (students && students.length > 0) {
       return students;
     }
     return rankersData
-      .filter((r) => r.overallPercentage !== null && r.overallPercentage !== undefined)
+      .filter((r) => r.overallPercentage !== null && r.overallPercentage !== undefined && !r.isPlaceholder)
       .sort((a, b) => (b.overallPercentage ?? 0) - (a.overallPercentage ?? 0));
   }, [students]);
 
-  // Center/featured student index
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
   const total = sortedRankers.length;
 
-  // Reset current index when students dataset changes
-  useEffect(() => {
-    setCurrentIndex(0);
-  }, [students]);
+  // Currently spotlighted student
+  const [selectedStudentId, setSelectedStudentId] = useState<string>('');
+  const activeStudentId =
+    selectedStudentId && sortedRankers.some((s) => s.id === selectedStudentId)
+      ? selectedStudentId
+      : sortedRankers[0]?.id || '';
 
-  useEffect(() => {
-    if (currentIndex >= total && total > 0) {
-      setCurrentIndex(0);
-    }
-  }, [total, currentIndex]);
-
-  // Viewport dimensions
-  const [windowWidth, setWindowWidth] = useState<number>(
+  // Viewport measurements
+  const [viewportWidth, setViewportWidth] = useState<number>(
     typeof window !== 'undefined' ? window.innerWidth : 1440
   );
 
   useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
+    const handleResize = () => setViewportWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const isMobile = windowWidth < 640;
-  const isTablet = windowWidth >= 640 && windowWidth < 1024;
+  const isMobile = viewportWidth < 640;
+  const isTablet = viewportWidth >= 640 && viewportWidth < 1024;
 
-  // Step spacing between adjacent cards (in pixels)
-  const stepWidth = isMobile ? 170 : isTablet ? 220 : 290;
+  // Responsive card dimensions
+  const cardWidth = isMobile ? 290 : isTablet ? 310 : 335;
+  const cardGap = isMobile ? 16 : isTablet ? 20 : 22;
+  const cardStep = cardWidth + cardGap;
 
-  // Reduced motion preference
+  // ─── 2. CONTINUOUS FLOW TIMING (ALLEN STYLE) ───
+  // Calculate flow duration: ~3.0s per student card ensures serene, legible gliding
+  const flowDuration = useMemo(() => {
+    return Math.max(50, Math.round(total * 3.0));
+  }, [total]);
+
+  // Manual pause toggle
+  const [isManualPaused, setIsManualPaused] = useState<boolean>(false);
+
+  // Manual nudge offset (for Prev/Next controls and drag interaction)
+  const [manualOffset, setManualOffset] = useState<number>(0);
+
+  // ─── 3. REDUCED MOTION PREFERENCE ───
   const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(() =>
     typeof window !== 'undefined'
       ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -69,705 +78,386 @@ export const RankerCarousel: React.FC<RankerCarouselProps> = ({
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const listener = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
-    mediaQuery.addEventListener('change', listener);
-    return () => mediaQuery.removeEventListener('change', listener);
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
   }, []);
 
-  // Autoplay Refs
-  const autoplayTimerRef = useRef<number | null>(null);
-  const resumeTimerRef = useRef<number | null>(null);
-  const isHoveredRef = useRef<boolean>(false);
-
-  const clearAutoplayTimers = useCallback(() => {
-    if (autoplayTimerRef.current !== null) {
-      window.clearInterval(autoplayTimerRef.current);
-      autoplayTimerRef.current = null;
-    }
-    if (resumeTimerRef.current !== null) {
-      window.clearTimeout(resumeTimerRef.current);
-      resumeTimerRef.current = null;
-    }
-  }, []);
-
-  const pauseAutoplay = useCallback(() => {
-    clearAutoplayTimers();
-  }, [clearAutoplayTimers]);
-
-  // ==========================================
-  // UNIFIED CAROUSEL NAVIGATION CONTROLLER
-  // ==========================================
-
-  const goToNext = useCallback(() => {
-    pauseAutoplay();
-    setCurrentIndex((prev) => (prev + 1) % total);
-  }, [total, pauseAutoplay]);
-
-  const goToPrevious = useCallback(() => {
-    pauseAutoplay();
-    setCurrentIndex((prev) => (prev - 1 + total) % total);
-  }, [total, pauseAutoplay]);
-
-  const goToIndex = useCallback((idx: number) => {
-    pauseAutoplay();
-    setCurrentIndex(idx);
-  }, [pauseAutoplay]);
-
-  // Resume autoplay after 4 seconds of user inactivity
-  const scheduleResumeAutoplay = useCallback(() => {
-    if (isHoveredRef.current) return;
-    clearAutoplayTimers();
-    resumeTimerRef.current = window.setTimeout(() => {
-      if (isHoveredRef.current) return;
-      autoplayTimerRef.current = window.setInterval(() => {
-        if (!isHoveredRef.current) {
-          goToNext();
-        }
-      }, 5000);
-    }, 4000);
-  }, [clearAutoplayTimers, goToNext]);
-
-  // Click handler from secondary continuous editorial results rail
-  const handleRailSelectStudent = useCallback(
-    (studentId: string) => {
-      pauseAutoplay();
-      const targetIdx = sortedRankers.findIndex((s) => s.id === studentId);
-      if (targetIdx !== -1) {
-        goToIndex(targetIdx);
-        scheduleResumeAutoplay();
-      } else {
-        const found = rankersData.find((s) => s.id === studentId);
-        if (found && onSelectStudent) {
-          onSelectStudent(found);
-        }
-      }
-    },
-    [sortedRankers, goToIndex, scheduleResumeAutoplay, pauseAutoplay, onSelectStudent]
-  );
-
-  // Start autoplay on initial mount
-  useEffect(() => {
-    scheduleResumeAutoplay();
-    return () => clearAutoplayTimers();
-  }, [scheduleResumeAutoplay, clearAutoplayTimers]);
-
-  // Keyboard navigation (ArrowLeft / ArrowRight)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        document.activeElement?.tagName === 'INPUT' ||
-        document.activeElement?.tagName === 'TEXTAREA'
-      ) {
-        return;
-      }
-
-      if (e.key === 'ArrowLeft') {
-        goToPrevious();
-        scheduleResumeAutoplay();
-      } else if (e.key === 'ArrowRight') {
-        goToNext();
-        scheduleResumeAutoplay();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [goToPrevious, goToNext, scheduleResumeAutoplay]);
-
-  // ==========================================
-  // LAPTOP TRACKPAD TWO-FINGER GESTURE (wheel deltaX)
-  // ==========================================
-  const stageRef = useRef<HTMLDivElement>(null);
-  const wheelDeltaXRef = useRef<number>(0);
-  const wheelLockoutRef = useRef<boolean>(false);
-  const wheelResetTimerRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const el = stageRef.current;
-    if (!el) return;
-
-    const onWheel = (e: WheelEvent) => {
-      const absX = Math.abs(e.deltaX);
-      const absY = Math.abs(e.deltaY);
-
-      // Only handle intentional horizontal trackpad gesture
-      // (Do NOT hijack vertical page scrolling!)
-      if (absX > absY && absX > 10) {
-        // Prevent default browser horizontal page swipe history navigation
-        e.preventDefault();
-
-        pauseAutoplay();
-
-        if (wheelLockoutRef.current) return;
-
-        wheelDeltaXRef.current += e.deltaX;
-
-        // Reset accumulation if user pauses
-        if (wheelResetTimerRef.current !== null) {
-          window.clearTimeout(wheelResetTimerRef.current);
-        }
-        wheelResetTimerRef.current = window.setTimeout(() => {
-          wheelDeltaXRef.current = 0;
-        }, 250);
-
-        // Threshold to advance by one student
-        if (wheelDeltaXRef.current > 30) {
-          wheelDeltaXRef.current = 0;
-          wheelLockoutRef.current = true;
-          goToNext();
-          scheduleResumeAutoplay();
-          window.setTimeout(() => {
-            wheelLockoutRef.current = false;
-          }, 450);
-        } else if (wheelDeltaXRef.current < -30) {
-          wheelDeltaXRef.current = 0;
-          wheelLockoutRef.current = true;
-          goToPrevious();
-          scheduleResumeAutoplay();
-          window.setTimeout(() => {
-            wheelLockoutRef.current = false;
-          }, 450);
-        }
-      }
-      // If absY >= absX, normal vertical scroll happens completely untouched!
-    };
-
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
-  }, [goToNext, goToPrevious, pauseAutoplay, scheduleResumeAutoplay]);
-
-  // ==========================================
-  // DRAG VS CLICK / TAP COMPATIBILITY CONTROLLER
-  // ==========================================
-  // 8–10px threshold: movement <= 8px is treated as a CLICK/TAP
-  // movement > 8px is treated as a DRAG/SWIPE, preventing accidental card selection.
-  const isDraggingRef = useRef<boolean>(false);
-  const hasDraggedRef = useRef<boolean>(false);
+  // ─── 4. TOUCH & MOUSE INTERACTION (DRAGGING) ───
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [dragDelta, setDragDelta] = useState<number>(0);
   const dragStartXRef = useRef<number>(0);
   const dragStartYRef = useRef<number>(0);
-  const dragStartTimeRef = useRef<number>(0);
-  const isMouseDownRef = useRef<boolean>(false);
-  const touchDirectionDecidedRef = useRef<boolean>(false);
-  const clearDragTimerRef = useRef<number | null>(null);
+  const isPointerDownRef = useRef<boolean>(false);
+  const hasMovedRef = useRef<boolean>(false);
+  const directionDeterminedRef = useRef<boolean>(false);
+  const isHorizontalGestureRef = useRef<boolean>(false);
 
-  const [touchDeltaX, setTouchDeltaX] = useState<number>(0);
-  const [isSwiping, setIsSwiping] = useState<boolean>(false);
-
-  // RAF-batched smooth drag updates (prevents 120Hz React state re-render floods)
-  const pendingDeltaXRef = useRef<number>(0);
-  const rafIdRef = useRef<number | null>(null);
-
-  const updateDeltaX = useCallback((dx: number) => {
-    pendingDeltaXRef.current = dx;
-    if (rafIdRef.current === null) {
-      rafIdRef.current = window.requestAnimationFrame(() => {
-        setTouchDeltaX(pendingDeltaXRef.current);
-        rafIdRef.current = null;
-      });
-    }
-  }, []);
-
-  const cancelPendingRaf = useCallback(() => {
-    if (rafIdRef.current !== null) {
-      window.cancelAnimationFrame(rafIdRef.current);
-      rafIdRef.current = null;
-    }
-  }, []);
-
-  useEffect(() => {
-    return () => cancelPendingRaf();
-  }, [cancelPendingRaf]);
-
-  const markDragFinished = useCallback(() => {
-    cancelPendingRaf();
-    isDraggingRef.current = false;
-    isMouseDownRef.current = false;
-    touchDirectionDecidedRef.current = false;
-    if (clearDragTimerRef.current !== null) {
-      window.clearTimeout(clearDragTimerRef.current);
-    }
-    // Block synthetic clicks from dragging for 200ms
-    clearDragTimerRef.current = window.setTimeout(() => {
-      hasDraggedRef.current = false;
-    }, 200);
-  }, [cancelPendingRaf]);
-
-  // Card click handler: pure tap/click selects card; drag is suppressed
-  const handleCardClick = useCallback((idx: number) => {
-    if (hasDraggedRef.current || isDraggingRef.current) {
-      // Accidental click following swipe/drag suppressed!
-      return;
-    }
-    if (idx === currentIndex && onSelectStudent && sortedRankers[idx]) {
-      onSelectStudent(sortedRankers[idx]);
-    } else {
-      goToIndex(idx);
-      scheduleResumeAutoplay();
-    }
-  }, [currentIndex, onSelectStudent, sortedRankers, goToIndex, scheduleResumeAutoplay]);
-
-  // ==========================================
-  // MOUSE DRAG GESTURE (Desktop)
-  // ==========================================
-  const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.button !== 0) return; // Only primary mouse button
-    pauseAutoplay();
-    isMouseDownRef.current = true;
-    dragStartXRef.current = e.clientX;
-    dragStartYRef.current = e.clientY;
-    dragStartTimeRef.current = performance.now();
-    hasDraggedRef.current = false;
-    isDraggingRef.current = false;
-    cancelPendingRaf();
-    setTouchDeltaX(0);
+  const startDrag = (clientX: number, clientY: number) => {
+    isPointerDownRef.current = true;
+    dragStartXRef.current = clientX;
+    dragStartYRef.current = clientY;
+    hasMovedRef.current = false;
+    directionDeterminedRef.current = false;
+    isHorizontalGestureRef.current = false;
+    setDragDelta(0);
   };
 
-  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isMouseDownRef.current) return;
-    const dx = e.clientX - dragStartXRef.current;
-    const dy = e.clientY - dragStartYRef.current;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    if (dist > 12) {
-      isDraggingRef.current = true;
-      hasDraggedRef.current = true;
-      setIsSwiping(true);
-      updateDeltaX(dx);
-    }
-  };
-
-  const onMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isMouseDownRef.current) return;
-    cancelPendingRaf();
-    if (isDraggingRef.current) {
-      const dx = e.clientX - dragStartXRef.current;
-      if (dx < -30) {
-        goToNext();
-      } else if (dx > 30) {
-        goToPrevious();
-      }
-      setTouchDeltaX(0);
-      setIsSwiping(false);
-      scheduleResumeAutoplay();
-    }
-    markDragFinished();
-  };
-
-  const onMouseLeaveStage = () => {
-    if (isMouseDownRef.current) {
-      cancelPendingRaf();
-      if (isDraggingRef.current) {
-        const finalDelta = pendingDeltaXRef.current || touchDeltaX;
-        if (finalDelta < -30) {
-          goToNext();
-        } else if (finalDelta > 30) {
-          goToPrevious();
-        }
-        setTouchDeltaX(0);
-        setIsSwiping(false);
-        scheduleResumeAutoplay();
-      }
-      markDragFinished();
-    }
-    onMouseLeave();
-  };
-
-  // ==========================================
-  // MOBILE ONE-FINGER TOUCH SWIPE (touchstart / touchmove / touchend)
-  // ==========================================
-  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    pauseAutoplay();
-    const touch = e.touches[0];
-    if (!touch) return;
-    dragStartXRef.current = touch.clientX;
-    dragStartYRef.current = touch.clientY;
-    dragStartTimeRef.current = performance.now();
-    touchDirectionDecidedRef.current = false;
-    isDraggingRef.current = false;
-    hasDraggedRef.current = false;
-    cancelPendingRaf();
-    setTouchDeltaX(0);
-  };
-
-  const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    const touch = e.touches[0];
-    if (!touch) return;
-    const dx = touch.clientX - dragStartXRef.current;
-    const dy = touch.clientY - dragStartYRef.current;
+  const moveDrag = (clientX: number, clientY: number) => {
+    if (!isPointerDownRef.current) return;
+    const dx = clientX - dragStartXRef.current;
+    const dy = clientY - dragStartYRef.current;
     const absX = Math.abs(dx);
     const absY = Math.abs(dy);
 
-    // Determine if gesture is intentionally horizontal vs vertical page scroll
-    if (!touchDirectionDecidedRef.current) {
-      if (absX > 10 && absX > absY) {
-        touchDirectionDecidedRef.current = true;
-        isDraggingRef.current = true;
-        hasDraggedRef.current = true;
-        setIsSwiping(true);
-      } else if (absY > 10) {
-        // Vertical page scroll detected: allow normal browser scrolling without hijacking
-        touchDirectionDecidedRef.current = true;
-        isDraggingRef.current = false;
+    if (!directionDeterminedRef.current) {
+      if (absX > 8 && absX > absY) {
+        directionDeterminedRef.current = true;
+        isHorizontalGestureRef.current = true;
+        setIsDragging(true);
+        hasMovedRef.current = true;
+      } else if (absY > 8) {
+        directionDeterminedRef.current = true;
+        isHorizontalGestureRef.current = false;
+        isPointerDownRef.current = false;
+        setIsDragging(false);
         return;
       }
     }
 
-    if (isDraggingRef.current) {
-      updateDeltaX(dx);
+    if (isHorizontalGestureRef.current) {
+      setDragDelta(dx);
     }
   };
 
-  const onTouchEnd = () => {
-    cancelPendingRaf();
-    if (isDraggingRef.current) {
-      const finalDeltaX = pendingDeltaXRef.current || touchDeltaX;
-      const dt = performance.now() - dragStartTimeRef.current;
-      const isFlick = dt < 300 && Math.abs(finalDeltaX) > 20;
+  const endDrag = () => {
+    if (!isPointerDownRef.current && !isDragging) return;
+    isPointerDownRef.current = false;
 
-      // Swiped left -> next student
-      if (finalDeltaX < -30 || (isFlick && finalDeltaX < 0)) {
-        goToNext();
-      }
-      // Swiped right -> previous student
-      else if (finalDeltaX > 30 || (isFlick && finalDeltaX > 0)) {
-        goToPrevious();
-      }
-
-      setTouchDeltaX(0);
-      setIsSwiping(false);
-      scheduleResumeAutoplay();
+    if (isDragging) {
+      setManualOffset((prev) => prev + dragDelta);
+      setDragDelta(0);
+      setIsDragging(false);
     }
-    markDragFinished();
+
+    window.setTimeout(() => {
+      hasMovedRef.current = false;
+    }, 150);
   };
 
-  const onTouchCancel = () => {
-    cancelPendingRaf();
-    setTouchDeltaX(0);
-    setIsSwiping(false);
-    markDragFinished();
-    scheduleResumeAutoplay();
+  // Nudge controls
+  const handleNudgeNext = () => {
+    setManualOffset((prev) => prev - cardStep);
   };
 
-  // Hover handlers for autoplay pausing
-  const onMouseEnter = () => {
-    isHoveredRef.current = true;
-    pauseAutoplay();
+  const handleNudgePrev = () => {
+    setManualOffset((prev) => prev + cardStep);
   };
 
-  const onMouseLeave = () => {
-    isHoveredRef.current = false;
-    scheduleResumeAutoplay();
+  // Card click handler
+  const handleCardClick = (student: RankerRecord) => {
+    if (hasMovedRef.current || isDragging) return;
+
+    setSelectedStudentId(student.id);
+
+    if (onSelectStudent) {
+      onSelectStudent(student);
+    }
   };
 
-  const formatNumber = (n: number) => String(n).padStart(2, '0');
+  // Toggle manual pause
+  const togglePlayPause = () => {
+    setIsManualPaused((prev) => !prev);
+  };
 
-  // Fractional live offset during mobile touch swipe
-  const liveShift = isSwiping ? touchDeltaX / stepWidth : 0;
+  // Duplicated list for seamless infinite loop (Group A & Group B)
+  const displayItems = useMemo(() => {
+    return [...sortedRankers, ...sortedRankers];
+  }, [sortedRankers]);
+
+  if (total === 0) {
+    return (
+      <div
+        style={{
+          width: '100%',
+          padding: '4rem 1.5rem',
+          textAlign: 'center',
+          backgroundColor: '#FFFFFF',
+          borderRadius: '16px',
+          border: '1px solid rgba(16, 23, 43, 0.08)',
+          maxWidth: '600px',
+          margin: '0 auto',
+        }}
+      >
+        <p style={{ color: '#555149', fontSize: '1.05rem', margin: 0 }}>
+          No student achievement records currently available.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Student Achievers Flow Showcase"
+      className="fundamics-flow-container"
       style={{
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         position: 'relative',
+        overflow: 'hidden',
         userSelect: 'none',
         WebkitUserSelect: 'none',
       }}
-      role="region"
-      aria-roledescription="carousel"
-      aria-label="Student Rankers Carousel"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      onFocusCapture={pauseAutoplay}
-      onBlurCapture={scheduleResumeAutoplay}
     >
-      {/* 5-Card Physical Deck Stage */}
+      {/* ─── TOP CONTROLS & STATUS BAR ─── */}
       <div
-        ref={stageRef}
-        onMouseDown={onMouseDown}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
-        onMouseLeave={onMouseLeaveStage}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-        onTouchCancel={onTouchCancel}
         style={{
           width: '100%',
-          maxWidth: '1440px',
-          height: isMobile ? '510px' : '620px',
-          position: 'relative',
+          maxWidth: '1280px',
+          padding: isMobile ? '0 1rem 1.25rem' : '0 1.5rem 1.75rem',
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'space-between',
           alignItems: 'center',
-          overflow: 'hidden',
-          cursor: isSwiping ? 'grabbing' : 'default',
-          touchAction: 'pan-y', // Natural vertical page scrolling; horizontal swipe belongs to carousel
-        }}
-      >
-        {/* Navigation Buttons: Desktop Only (floating on far edges so cards have 100% unobstructed tap targets!) */}
-        {!isMobile && (
-          <>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                goToPrevious();
-                scheduleResumeAutoplay();
-              }}
-              aria-label="Previous student"
-              className="carousel-circle-btn"
-              style={{
-                position: 'absolute',
-                left: 'clamp(15px, 4vw, 55px)',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                zIndex: 35,
-                width: '50px',
-                height: '50px',
-                borderRadius: '50%',
-                backgroundColor: '#FFFFFF',
-                border: '1px solid rgba(16, 23, 43, 0.12)',
-                boxShadow: '0 8px 24px rgba(16, 23, 43, 0.14)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                color: '#10172B',
-                transition: 'all 250ms ease',
-                outline: 'none',
-                WebkitTapHighlightColor: 'transparent',
-              }}
-            >
-              <ChevronLeft size={24} strokeWidth={2.4} />
-            </button>
-
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                goToNext();
-                scheduleResumeAutoplay();
-              }}
-              aria-label="Next student"
-              className="carousel-circle-btn"
-              style={{
-                position: 'absolute',
-                right: 'clamp(15px, 4vw, 55px)',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                zIndex: 35,
-                width: '50px',
-                height: '50px',
-                borderRadius: '50%',
-                backgroundColor: '#FFFFFF',
-                border: '1px solid rgba(16, 23, 43, 0.12)',
-                boxShadow: '0 8px 24px rgba(16, 23, 43, 0.14)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                color: '#10172B',
-                transition: 'all 250ms ease',
-                outline: 'none',
-                WebkitTapHighlightColor: 'transparent',
-              }}
-            >
-              <ChevronRight size={24} strokeWidth={2.4} />
-            </button>
-          </>
-        )}
-
-        {/* All 11 Verified Cards Rendered in DOM */}
-        {sortedRankers.map((student, idx) => {
-          let rawOffset = (idx - currentIndex) % total;
-          if (rawOffset > total / 2) rawOffset -= total;
-          if (rawOffset < -total / 2) rawOffset += total;
-
-          let continuousOffset = rawOffset + liveShift;
-          if (continuousOffset > total / 2) continuousOffset -= total;
-          if (continuousOffset < -total / 2) continuousOffset += total;
-
-          return (
-            <DeckCard
-              key={student.id}
-              student={student}
-              continuousOffset={continuousOffset}
-              isSwiping={isSwiping}
-              prefersReducedMotion={prefersReducedMotion}
-              onClick={() => handleCardClick(idx)}
-              isMobile={isMobile}
-              isTablet={isTablet}
-            />
-          );
-        })}
-      </div>
-
-      {/* Counter & Progress Indicator (Directly below cards) */}
-      <div
-        style={{
-          marginTop: '1.25rem',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '0.75rem',
           zIndex: 10,
         }}
       >
-        {/* Counter: e.g. < 01 / 11 > (On mobile, flanked by buttons so cards above are 100% unobstructed!) */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: isMobile ? '1.25rem' : '0.45rem',
-          }}
-        >
-          {isMobile && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                goToPrevious();
-                scheduleResumeAutoplay();
-              }}
-              aria-label="Previous student"
-              className="carousel-circle-btn"
-              style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '50%',
-                backgroundColor: '#FFFFFF',
-                border: '1px solid rgba(16, 23, 43, 0.12)',
-                boxShadow: '0 4px 14px rgba(16, 23, 43, 0.12)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                color: '#10172B',
-                outline: 'none',
-                WebkitTapHighlightColor: 'transparent',
-              }}
-            >
-              <ChevronLeft size={20} strokeWidth={2.4} />
-            </button>
-          )}
-
+        {/* Status Tag */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
           <div
             style={{
-              fontFamily: "'Newsreader', Georgia, serif",
-              fontSize: '1.15rem',
-              letterSpacing: '0.04em',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.45rem',
+              gap: '6px',
+              backgroundColor: '#EEF2FB',
+              color: '#202A57',
+              padding: '0.35rem 0.85rem',
+              borderRadius: '9999px',
+              border: '1px solid #D5E0F5',
+              fontSize: isMobile ? '0.74rem' : '0.80rem',
+              fontWeight: 700,
+              letterSpacing: '0.04em',
             }}
           >
-            <span style={{ fontWeight: 800, color: '#10172B', fontSize: '1.35rem' }}>
-              {formatNumber(currentIndex + 1)}
-            </span>
-            <span style={{ color: '#9CA3AF', fontWeight: 400 }}>/</span>
-            <span style={{ color: '#6B7280', fontWeight: 600 }}>
-              {formatNumber(total)}
+            <Sparkles size={13} color="#C89B3C" />
+            <span>
+              {total} Verified Achievers · Auto Flow
             </span>
           </div>
-
-          {isMobile && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                goToNext();
-                scheduleResumeAutoplay();
-              }}
-              aria-label="Next student"
-              className="carousel-circle-btn"
-              style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '50%',
-                backgroundColor: '#FFFFFF',
-                border: '1px solid rgba(16, 23, 43, 0.12)',
-                boxShadow: '0 4px 14px rgba(16, 23, 43, 0.12)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                color: '#10172B',
-                outline: 'none',
-                WebkitTapHighlightColor: 'transparent',
-              }}
-            >
-              <ChevronRight size={20} strokeWidth={2.4} />
-            </button>
-          )}
+          <span
+            style={{
+              fontSize: '0.75rem',
+              color: '#717D96',
+              display: isMobile ? 'none' : 'inline',
+            }}
+          >
+            (Hover any card to pause & inspect)
+          </span>
         </div>
 
-        {/* 11 Thin Progress Bars */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: isMobile ? '4px' : '6px',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            maxWidth: '90vw',
-          }}
-          role="tablist"
-          aria-label="Student progress indicators"
-        >
-          {sortedRankers.map((s, idx) => {
-            const isActive = idx === currentIndex;
-            return (
-              <button
-                key={s.id}
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => {
-                  goToIndex(idx);
-                  scheduleResumeAutoplay();
-                }}
-                aria-label={`Jump to student ${idx + 1}: ${s.name}`}
-                type="button"
-                className="carousel-progress-btn"
-                style={{
-                  width: isActive ? (isMobile ? '24px' : '30px') : (isMobile ? '10px' : '14px'),
-                  height: '3.5px',
-                  borderRadius: '2px',
-                  backgroundColor: isActive ? '#E6AA32' : 'rgba(16, 23, 43, 0.15)',
-                  border: 'none',
-                  padding: 0,
-                  cursor: 'pointer',
-                  transition: 'all 300ms cubic-bezier(0.16, 1, 0.3, 1)',
-                  outline: 'none',
-                  WebkitTapHighlightColor: 'transparent',
-                }}
-              />
-            );
-          })}
+        {/* Action Controls: Pause/Play + Nudge Prev/Next */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          {/* Pause / Play Toggle Button */}
+          <button
+            type="button"
+            onClick={togglePlayPause}
+            aria-label={isManualPaused ? 'Resume auto-flow movement' : 'Pause auto-flow movement'}
+            className="flow-control-btn"
+            style={{
+              width: isMobile ? '38px' : '42px',
+              height: isMobile ? '38px' : '42px',
+              borderRadius: '50%',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid rgba(16, 23, 43, 0.12)',
+              boxShadow: '0 2px 8px rgba(16, 23, 43, 0.06)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: '#202A57',
+              transition: 'all 200ms ease',
+              outline: 'none',
+            }}
+          >
+            {isManualPaused ? <Play size={16} fill="#202A57" /> : <Pause size={16} fill="#202A57" />}
+          </button>
+
+          {/* Previous Arrow Button */}
+          <button
+            type="button"
+            onClick={handleNudgePrev}
+            aria-label="Shift cards backward"
+            className="flow-control-btn"
+            style={{
+              width: isMobile ? '38px' : '42px',
+              height: isMobile ? '38px' : '42px',
+              borderRadius: '50%',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid rgba(16, 23, 43, 0.12)',
+              boxShadow: '0 2px 8px rgba(16, 23, 43, 0.06)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: '#10172B',
+              transition: 'all 200ms ease',
+              outline: 'none',
+            }}
+          >
+            <ChevronLeft size={isMobile ? 18 : 20} strokeWidth={2.4} />
+          </button>
+
+          {/* Next Arrow Button */}
+          <button
+            type="button"
+            onClick={handleNudgeNext}
+            aria-label="Shift cards forward"
+            className="flow-control-btn"
+            style={{
+              width: isMobile ? '38px' : '42px',
+              height: isMobile ? '38px' : '42px',
+              borderRadius: '50%',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid rgba(16, 23, 43, 0.12)',
+              boxShadow: '0 2px 8px rgba(16, 23, 43, 0.06)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: '#10172B',
+              transition: 'all 200ms ease',
+              outline: 'none',
+            }}
+          >
+            <ChevronRight size={isMobile ? 18 : 20} strokeWidth={2.4} />
+          </button>
         </div>
       </div>
 
-      {/* Secondary Continuous Editorial Results Rail */}
+      {/* ─── CONTINUOUS FLOW VIEWPORT ─── */}
+      <div
+        className="allen-flowing-viewport"
+        style={{
+          width: '100%',
+          overflow: 'hidden',
+          position: 'relative',
+          padding: isMobile ? '0.75rem 0 1.25rem' : '1.25rem 0 1.75rem',
+          cursor: isDragging ? 'grabbing' : 'grab',
+          touchAction: 'pan-y',
+        }}
+        onMouseDown={(e) => {
+          if (e.button === 0) startDrag(e.clientX, e.clientY);
+        }}
+        onMouseMove={(e) => moveDrag(e.clientX, e.clientY)}
+        onMouseUp={endDrag}
+        onTouchStart={(e) => {
+          const t = e.touches[0];
+          if (t) startDrag(t.clientX, t.clientY);
+        }}
+        onTouchMove={(e) => {
+          const t = e.touches[0];
+          if (t) moveDrag(t.clientX, t.clientY);
+        }}
+        onTouchEnd={endDrag}
+        onTouchCancel={endDrag}
+      >
+        {/* Soft edge fade masks (matching ALLEN's edge appearance) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            width: isMobile ? '40px' : '80px',
+            background: 'linear-gradient(to right, #F8FAFC 25%, transparent 100%)',
+            zIndex: 6,
+            pointerEvents: 'none',
+          }}
+          aria-hidden="true"
+        />
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            right: 0,
+            width: isMobile ? '40px' : '80px',
+            background: 'linear-gradient(to left, #F8FAFC 25%, transparent 100%)',
+            zIndex: 6,
+            pointerEvents: 'none',
+          }}
+          aria-hidden="true"
+        />
+
+        {/* Outer offset wrapper for manual nudging / dragging */}
+        <div
+          style={{
+            transform: `translate3d(${manualOffset + dragDelta}px, 0, 0)`,
+            transition: isDragging ? 'none' : 'transform 400ms cubic-bezier(0.16, 1, 0.3, 1)',
+            willChange: 'transform',
+          }}
+        >
+          {/* Continuous GPU-Flow Marquee Track */}
+          <div
+            className={`allen-flowing-track ${isManualPaused || prefersReducedMotion ? 'is-paused' : ''}`}
+            style={{
+              display: 'flex',
+              gap: `${cardGap}px`,
+              width: 'max-content',
+              animationDuration: `${flowDuration}s`,
+              animationPlayState: isManualPaused || isDragging || prefersReducedMotion ? 'paused' : 'running',
+              willChange: 'transform',
+            }}
+          >
+            {displayItems.map((student, idx) => {
+              const isDuplicate = idx >= total;
+              const isActive = student.id === activeStudentId;
+
+              return (
+                <div
+                  key={`${student.id}-${idx}`}
+                  style={{ flexShrink: 0 }}
+                  aria-hidden={isDuplicate ? 'true' : undefined}
+                >
+                  <AchieverCard
+                    student={student}
+                    isActive={isActive}
+                    width={cardWidth}
+                    isMobile={isMobile}
+                    isTablet={isTablet}
+                    onClick={() => handleCardClick(student)}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* ─── OPTIONAL EDITORIAL RAIL ─── */}
       {showEditorialRail && (
         <EditorialResultsRail
-          activeStudentId={sortedRankers[currentIndex]?.id}
-          onSelectStudent={handleRailSelectStudent}
+          activeStudentId={activeStudentId}
+          onSelectStudent={(studentId) => {
+            setSelectedStudentId(studentId);
+          }}
         />
       )}
 
-      {/* Bottom Primary CTA Button */}
+      {/* ─── BOTTOM CTA: VIEW ALL RANKERS ─── */}
       {showBottomCta && (
-        <div style={{ marginTop: '2rem', textAlign: 'center', zIndex: 10 }}>
+        <div style={{ marginTop: '2.5rem', textAlign: 'center', zIndex: 10 }}>
           <Link
             href="/rankers"
             className="btn-navy-pill"
             style={{
               backgroundColor: '#10172B',
               color: '#FFFFFF',
-              padding: '0.9rem 2.25rem',
+              padding: '0.95rem 2.4rem',
               borderRadius: '9999px',
               fontWeight: 600,
               fontSize: '0.95rem',
@@ -776,90 +466,73 @@ export const RankerCarousel: React.FC<RankerCarouselProps> = ({
               alignItems: 'center',
               gap: '0.65rem',
               textDecoration: 'none',
-              boxShadow: '0 8px 24px rgba(16, 23, 43, 0.2)',
+              boxShadow: '0 8px 24px rgba(16, 23, 43, 0.18)',
               transition: 'all 250ms ease',
               outline: 'none',
             }}
           >
-            <span>View All Results</span>
-            <ArrowRight size={17} color="#E6AA32" />
+            <span>View All Rankers</span>
+            <ArrowRight size={18} color="#C89B3C" />
           </Link>
         </div>
       )}
 
-      {/* Scoped CSS: Accessible focus, hover states, zero blue rectangles */}
+      {/* ─── SCOPED KEYFRAME ANIMATIONS & STYLES ─── */}
       <style>{`
-        /* Circle Navigation Buttons */
-        .carousel-circle-btn {
-          outline: none !important;
-          -webkit-tap-highlight-color: transparent !important;
+        /* Continuous GPU Marquee Flow Keyframe */
+        @keyframes allenStyleGlide {
+          0% {
+            transform: translate3d(0, 0, 0);
+          }
+          100% {
+            transform: translate3d(-50%, 0, 0);
+          }
         }
 
-        .carousel-circle-btn:focus {
-          outline: none !important;
+        .allen-flowing-track {
+          animation-name: allenStyleGlide;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
         }
 
-        .carousel-circle-btn:focus-visible {
-          outline: 2px solid #E6AA32 !important;
-          outline-offset: 3px !important;
-          box-shadow: 0 0 0 4px rgba(230, 170, 50, 0.25), 0 8px 24px rgba(16, 23, 43, 0.14) !important;
+        /* Seamless pause on hover so visitors can effortlessly inspect any card */
+        .allen-flowing-viewport:hover .allen-flowing-track {
+          animation-play-state: paused !important;
         }
 
-        .carousel-circle-btn:hover {
-          background-color: #10172B !important;
+        .allen-flowing-track.is-paused {
+          animation-play-state: paused !important;
+        }
+
+        /* Buttons */
+        .flow-control-btn:hover {
+          background-color: #202A57 !important;
           color: #FFFFFF !important;
-          transform: translateY(-50%) scale(1.08) !important;
-          box-shadow: 0 10px 28px rgba(16, 23, 43, 0.25) !important;
+          border-color: #202A57 !important;
+          transform: scale(1.06);
+          box-shadow: 0 4px 14px rgba(32, 42, 87, 0.22) !important;
         }
 
-        /* Progress Bar Buttons */
-        .carousel-progress-btn {
-          outline: none !important;
-          -webkit-tap-highlight-color: transparent !important;
-        }
-
-        .carousel-progress-btn:focus {
-          outline: none !important;
-        }
-
-        .carousel-progress-btn:focus-visible {
-          outline: 2px solid #E6AA32 !important;
+        .flow-control-btn:focus-visible {
+          outline: 2px solid #202A57 !important;
           outline-offset: 2px !important;
         }
 
-        /* Deck Card Focus */
-        .carousel-deck-card:focus {
-          outline: none !important;
-        }
-
-        .carousel-deck-card:focus-visible {
-          outline: 2px solid #E6AA32 !important;
-          outline-offset: 4px !important;
-        }
-
-        /* Bottom CTA Button */
         .btn-navy-pill:hover {
-          background-color: #18223D !important;
+          background-color: #202A57 !important;
           transform: translateY(-2px);
-          box-shadow: 0 12px 30px rgba(16, 23, 43, 0.3) !important;
-        }
-
-        .btn-navy-pill:focus {
-          outline: none !important;
+          box-shadow: 0 12px 30px rgba(16, 23, 43, 0.26) !important;
         }
 
         .btn-navy-pill:focus-visible {
-          outline: 2px solid #E6AA32 !important;
+          outline: 2px solid #202A57 !important;
           outline-offset: 3px !important;
         }
 
-        /* Reduced Motion */
+        /* Reduced motion accessibility */
         @media (prefers-reduced-motion: reduce) {
-          .carousel-deck-card,
-          .carousel-circle-btn,
-          .carousel-progress-btn,
-          .btn-navy-pill {
-            transition-duration: 0.01ms !important;
+          .allen-flowing-track {
+            animation: none !important;
           }
         }
       `}</style>
