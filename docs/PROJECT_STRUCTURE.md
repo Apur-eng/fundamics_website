@@ -13,7 +13,7 @@ Fundemics Tutorials is the institutional website for **Fundemics Tutorials LLP**
 
 ---
 
-## 2. Technology Stack
+# 2. Technology Stack
 
 The application is built as a fast, statically deliverable Single Page Application (SPA) using:
 
